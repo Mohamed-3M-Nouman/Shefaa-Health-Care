@@ -33,9 +33,15 @@ namespace ShefaaHealthCare.Models
 
         public bool IsVerified { get; set; } = false;
 
+        [MaxLength(500)]
+        public string? SyndicateIdCardPath { get; set; }
+
+        [MaxLength(500)]
+        public string? CertificatePath { get; set; }
+
         // Navigation Properties
-        public virtual ICollection<DoctorSchedule> Schedules { get; set; } = new List<DoctorSchedule>();
-        public virtual ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
-        public virtual ICollection<MedicalRecord> MedicalRecords { get; set; } = new List<MedicalRecord>();
+        public virtual ICollection<DoctorSchedule> Schedules { get; set; } = [];
+        public virtual ICollection<Appointment> Appointments { get; set; } = [];
+        public virtual ICollection<MedicalRecord> MedicalRecords { get; set; } = [];
     }
 }

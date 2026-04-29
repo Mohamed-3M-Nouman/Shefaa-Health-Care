@@ -1,5 +1,7 @@
 using ShefaaHealthCare.Data;
 using ShefaaHealthCare.Models;
+using ShefaaHealthCare.Repositories.Interfaces;
+using ShefaaHealthCare.Repositories.Implementation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -28,7 +30,25 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
+// Register Generic Repository & Unit of Work
+builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+// Configure Identity cookie paths
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Account/Login";
+    options.AccessDeniedPath = "/Account/Login";
+});
+
 var app = builder.Build();
+
+// Seed Roles
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    await DbSeeder.SeedRolesAndAdminAsync(services);
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -52,4 +72,4 @@ app.MapControllerRoute(
     .WithStaticAssets();
 
 
-app.Run();
+await app.RunAsync();

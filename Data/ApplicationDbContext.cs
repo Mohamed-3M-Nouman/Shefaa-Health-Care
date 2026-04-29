@@ -4,21 +4,18 @@ using ShefaaHealthCare.Models;
 
 namespace ShefaaHealthCare.Data
 {
-    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
+    public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+        : IdentityDbContext<ApplicationUser>(options)
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-            : base(options)
-        {
-        }
 
-        public DbSet<Patient> Patients { get; set; }
-        public DbSet<Doctor> Doctors { get; set; }
-        public DbSet<Specialization> Specializations { get; set; }
-        public DbSet<DoctorSchedule> DoctorSchedules { get; set; }
-        public DbSet<Appointment> Appointments { get; set; }
-        public DbSet<PatientMedicalProfile> PatientMedicalProfiles { get; set; }
-        public DbSet<MedicalRecord> MedicalRecords { get; set; }
-        public DbSet<MedicalAttachment> MedicalAttachments { get; set; }
+        public DbSet<Patient> Patients { get; set; } = null!;
+        public DbSet<Doctor> Doctors { get; set; } = null!;
+        public DbSet<Specialization> Specializations { get; set; } = null!;
+        public DbSet<DoctorSchedule> DoctorSchedules { get; set; } = null!;
+        public DbSet<Appointment> Appointments { get; set; } = null!;
+        public DbSet<PatientMedicalProfile> PatientMedicalProfiles { get; set; } = null!;
+        public DbSet<MedicalRecord> MedicalRecords { get; set; } = null!;
+        public DbSet<MedicalAttachment> MedicalAttachments { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
