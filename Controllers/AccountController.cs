@@ -58,168 +58,163 @@ namespace ShefaaHealthCare.Controllers
         }
 
         // ══════════════════════════════════════════
-        //  REGISTER
+        //  REGISTER (GET)
         // ══════════════════════════════════════════
 
         [HttpGet]
         public async Task<IActionResult> Register()
         {
+            // إرسال التخصصات للواجهة
+            var specializations = await _unitOfWork.Repository<Specialization>().GetAllAsync();
+            ViewBag.Specializations = new SelectList(specializations, "Id", "Name");
+
+            // تهيئة أيام الأسبوع للطبيب
             var model = new RegisterViewModel
             {
-                // Initialize schedule for 7 days
-                Schedules = [.. Enum.GetValues<DayOfWeek>()
-                    .Select(d => new ScheduleItemViewModel
-                    {
-                        DayOfWeek = d,
-                        IsSelected = false,
-                        StartTime = new TimeSpan(9, 0, 0),
-                        EndTime = new TimeSpan(17, 0, 0),
-                        SlotDurationMinutes = 30
-                    })]
+                Schedules = []
             };
-
-            // Populate Specializations dropdown
-            ViewBag.Specializations = new SelectList(
-                await _context.Specializations.OrderBy(s => s.Name).ToListAsync(),
-                "Id", "Name");
+            for (int i = 0; i < 7; i++)
+            {
+                model.Schedules.Add(new ScheduleItemViewModel { DayOfWeek = i, IsSelected = false });
+            }
 
             return View(model);
         }
+
+        // ══════════════════════════════════════════
+        //  REGISTER (POST)
+        // ══════════════════════════════════════════
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
-            // Re-populate dropdown on validation failure
-            ViewBag.Specializations = new SelectList(
-                await _context.Specializations.OrderBy(s => s.Name).ToListAsync(),
-                "Id", "Name");
-
-            // Remove validation for fields not relevant to the selected UserType
+            // 1. حل كارثة الـ Validation
             if (model.UserType == "Patient")
             {
                 ModelState.Remove("SpecializationId");
                 ModelState.Remove("ConsultationFee");
                 ModelState.Remove("SyndicateIdCard");
                 ModelState.Remove("Certificate");
-                // Remove schedule validation
-                for (int i = 0; i < 7; i++)
-                {
-                    ModelState.Remove($"Schedules[{i}].StartTime");
-                    ModelState.Remove($"Schedules[{i}].EndTime");
-                    ModelState.Remove($"Schedules[{i}].SlotDurationMinutes");
-                }
+                for (int i = 0; i < (model.Schedules?.Count ?? 0); i++)
+                    ModelState.Remove($"Schedules[{i}].DayOfWeek");
             }
             else if (model.UserType == "Doctor")
             {
                 ModelState.Remove("DateOfBirth");
                 ModelState.Remove("Gender");
                 ModelState.Remove("BloodType");
-                ModelState.Remove("ChronicDiseases");
             }
 
+            // 2. حل كارثة الـ ViewBag في حالة وجود أخطاء
             if (!ModelState.IsValid)
-                return View(model);
-
-            // Create the Identity user
-            var user = new ApplicationUser
             {
-                UserName = model.Email,
-                Email = model.Email,
-                PhoneNumber = model.PhoneNumber,
-                UserType = model.UserType
-            };
-
-            var result = await _userManager.CreateAsync(user, model.Password);
-
-            if (!result.Succeeded)
-            {
-                foreach (var error in result.Errors)
-                    ModelState.AddModelError(string.Empty, error.Description);
+                var specs = await _unitOfWork.Repository<Specialization>().GetAllAsync();
+                ViewBag.Specializations = new SelectList(specs, "Id", "Name");
                 return View(model);
             }
 
-            // Assign role
-            await _userManager.AddToRoleAsync(user, model.UserType);
-
-            // ── Patient Registration ──
-            if (model.UserType == "Patient")
+            // 3. حل كارثة تسريب البيانات باستخدام Transaction
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
             {
-                var patient = new Patient
+                var user = new ApplicationUser
                 {
-                    UserId = user.Id,
-                    FullName = model.FullName,
-                    DateOfBirth = model.DateOfBirth ?? DateTime.UtcNow,
-                    Gender = model.Gender,
-                    BloodType = model.BloodType
+                    UserName = model.Email,
+                    Email = model.Email,
+                    PhoneNumber = model.PhoneNumber,
+                    UserType = model.UserType,
+                    CreatedAt = DateTime.Now
                 };
 
-                await _unitOfWork.Repository<Patient>().AddAsync(patient);
-                await _unitOfWork.CompleteAsync();
-
-                // Create empty PatientMedicalProfile
-                var medicalProfile = new PatientMedicalProfile
+                var result = await _userManager.CreateAsync(user, model.Password);
+                if (result.Succeeded)
                 {
-                    PatientId = patient.Id,
-                    ChronicDiseases = model.ChronicDiseases
-                };
+                    await _userManager.AddToRoleAsync(user, model.UserType);
 
-                await _unitOfWork.Repository<PatientMedicalProfile>().AddAsync(medicalProfile);
-                await _unitOfWork.CompleteAsync();
-            }
-
-            // ── Doctor Registration ──
-            else if (model.UserType == "Doctor")
-            {
-                // Save uploaded files
-                string? syndicatePath = null;
-                string? certificatePath = null;
-
-                if (model.SyndicateIdCard != null && model.SyndicateIdCard.Length > 0)
-                {
-                    syndicatePath = await SaveFileAsync(model.SyndicateIdCard, "documents");
-                }
-
-                if (model.Certificate != null && model.Certificate.Length > 0)
-                {
-                    certificatePath = await SaveFileAsync(model.Certificate, "documents");
-                }
-
-                var doctor = new Doctor
-                {
-                    UserId = user.Id,
-                    FullName = model.FullName,
-                    SpecializationId = model.SpecializationId ?? 0,
-                    ConsultationFee = model.ConsultationFee ?? 0,
-                    IsVerified = false,
-                    SyndicateIdCardPath = syndicatePath,
-                    CertificatePath = certificatePath
-                };
-
-                await _unitOfWork.Repository<Doctor>().AddAsync(doctor);
-                await _unitOfWork.CompleteAsync();
-
-                // Create DoctorSchedule records for selected days
-                foreach (var schedule in model.Schedules.Where(s => s.IsSelected))
-                {
-                    var doctorSchedule = new DoctorSchedule
+                    if (model.UserType == "Patient")
                     {
-                        DoctorId = doctor.Id,
-                        DayOfWeek = (int)schedule.DayOfWeek,
-                        StartTime = schedule.StartTime ?? new TimeSpan(9, 0, 0),
-                        EndTime = schedule.EndTime ?? new TimeSpan(17, 0, 0),
-                        SlotDurationMinutes = schedule.SlotDurationMinutes
-                    };
+                        var patient = new Patient
+                        {
+                            UserId = user.Id,
+                            FullName = model.FullName,
+                            DateOfBirth = model.DateOfBirth ?? DateTime.UtcNow,
+                            Gender = model.Gender,
+                            BloodType = model.BloodType
+                        };
+                        await _unitOfWork.Repository<Patient>().AddAsync(patient);
+                        await _unitOfWork.CompleteAsync();
 
-                    await _unitOfWork.Repository<DoctorSchedule>().AddAsync(doctorSchedule);
+                        var medicalProfile = new PatientMedicalProfile
+                        {
+                            PatientId = patient.Id,
+                            ChronicDiseases = model.ChronicDiseases
+                        };
+                        await _unitOfWork.Repository<PatientMedicalProfile>().AddAsync(medicalProfile);
+                        await _unitOfWork.CompleteAsync();
+                    }
+                    else if (model.UserType == "Doctor")
+                    {
+                        string? syndicatePath = model.SyndicateIdCard != null
+                            ? await SaveFileAsync(model.SyndicateIdCard, "documents")
+                            : null;
+                        string? certificatePath = model.Certificate != null
+                            ? await SaveFileAsync(model.Certificate, "documents")
+                            : null;
+
+                        var doctor = new Doctor
+                        {
+                            UserId = user.Id,
+                            FullName = model.FullName,
+                            SpecializationId = model.SpecializationId ?? 0,
+                            ConsultationFee = model.ConsultationFee ?? 0,
+                            SyndicateIdCardPath = syndicatePath,
+                            CertificatePath = certificatePath,
+                            IsVerified = false
+                        };
+                        await _unitOfWork.Repository<Doctor>().AddAsync(doctor);
+                        await _unitOfWork.CompleteAsync();
+
+                        if (model.Schedules != null && model.Schedules.Any(s => s.IsSelected))
+                        {
+                            foreach (var schedule in model.Schedules.Where(s => s.IsSelected))
+                            {
+                                var doctorSchedule = new DoctorSchedule
+                                {
+                                    DoctorId = doctor.Id,
+                                    DayOfWeek = schedule.DayOfWeek,
+                                    StartTime = schedule.StartTime ?? new TimeSpan(9, 0, 0),
+                                    EndTime = schedule.EndTime ?? new TimeSpan(17, 0, 0),
+                                    SlotDurationMinutes = schedule.SlotDurationMinutes
+                                };
+                                await _unitOfWork.Repository<DoctorSchedule>().AddAsync(doctorSchedule);
+                            }
+                            await _unitOfWork.CompleteAsync();
+                        }
+                    }
+
+                    // تأكيد العملية وحفظ كل شيء
+                    await transaction.CommitAsync();
+                    await _signInManager.SignInAsync(user, isPersistent: false);
+                    return RedirectToAction("Index", "Home");
                 }
 
-                await _unitOfWork.CompleteAsync();
+                // إرجاع أخطاء الـ Identity (مثل باسوورد ضعيف أو إيميل مستخدم)
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+            }
+            catch (Exception)
+            {
+                // التراجع عن أي شيء تم حفظه في الداتا بيز بسبب ظهور Error
+                await transaction.RollbackAsync();
+                ModelState.AddModelError(string.Empty, "حدث خطأ أثناء إنشاء الحساب. تأكد من إدخال كافة البيانات بشكل صحيح.");
             }
 
-            // Sign in the user
-            await _signInManager.SignInAsync(user, isPersistent: false);
-            return RedirectToAction("Index", "Home");
+            var fallbackSpecs = await _unitOfWork.Repository<Specialization>().GetAllAsync();
+            ViewBag.Specializations = new SelectList(fallbackSpecs, "Id", "Name");
+            return View(model);
         }
 
         // ══════════════════════════════════════════

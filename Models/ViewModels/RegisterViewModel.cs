@@ -73,7 +73,7 @@ namespace ShefaaHealthCare.Models.ViewModels
 
     public class ScheduleItemViewModel
     {
-        public DayOfWeek DayOfWeek { get; set; }
+        public int DayOfWeek { get; set; }
 
         [Display(Name = "مختار")]
         public bool IsSelected { get; set; }
