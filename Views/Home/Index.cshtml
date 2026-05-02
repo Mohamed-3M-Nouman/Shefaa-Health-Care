@@ -26,15 +26,30 @@
                 </p>
 
                 <!-- Search Bar (Hook) -->
-                <form asp-controller="Account" asp-action="Login" method="get" class="hero-search mb-4">
-                    <div class="input-group input-group-lg">
-                        <input type="text" class="form-control shadow-none"
-                               placeholder="ابحث عن طبيب أو تخصص..." aria-label="بحث" />
-                        <a class="btn btn-success px-4" asp-controller="Account" asp-action="Login">
-                            <i class="bi bi-search me-1"></i>ابحث
-                        </a>
-                    </div>
-                </form>
+                @if (User.Identity != null && User.Identity.IsAuthenticated)
+                {
+                    <form asp-controller="Doctor" asp-action="Index" method="get" class="hero-search mb-4">
+                        <div class="input-group input-group-lg">
+                            <button class="btn btn-success px-4" type="submit">
+                                <i class="bi bi-search me-1"></i>ابحث
+                            </button>
+                            <input type="text" class="form-control shadow-none" name="search"
+                                   placeholder="ابحث عن طبيب أو تخصص..." aria-label="بحث" />
+                        </div>
+                    </form>
+                }
+                else
+                {
+                    <form asp-controller="Account" asp-action="Login" method="get" class="hero-search mb-4">
+                        <div class="input-group input-group-lg">
+                            <a class="btn btn-success px-4" asp-controller="Account" asp-action="Login">
+                                <i class="bi bi-search me-1"></i>ابحث
+                            </a>
+                            <input type="text" class="form-control shadow-none"
+                                   placeholder="ابحث عن طبيب أو تخصص..." aria-label="بحث" />
+                        </div>
+                    </form>
+                }
 
                 <!-- Stats -->
                 <div class="d-flex gap-4 flex-wrap" data-aos="fade-up" data-aos-delay="200">
@@ -120,7 +135,7 @@
                         <div class="feature-icon bg-success bg-opacity-10 text-success mb-3">
                             <i class="bi bi-calendar-check"></i>
                         </div>
-                        <h5 class="card-title fw-bold mb-3">حجز مواعيد سلس</h5>
+                        <h5 class="card-title fw-bold mb-3">حجز مواعيد بسهولة</h5>
                         <p class="card-text text-muted">
                             احجز موعدك مع الطبيب المناسب في ثوانٍ
                             معدودة مع إشعارات تذكيرية تلقائية.
@@ -133,67 +148,73 @@
 </section>
 
 <!-- ══════════════════════════════════════════ -->
-<!--  HOW IT WORKS                              -->
+<!--  HOW IT WORKS (Only for non-logged-in)    -->
 <!-- ══════════════════════════════════════════ -->
-<section class="py-5 bg-white">
-    <div class="container">
-        <div class="text-center mb-5" data-aos="fade-up">
-            <span class="badge bg-success bg-opacity-10 text-success rounded-4 px-3 py-2 mb-3">كيف يعمل</span>
-            <h2 class="fw-bold text-dark">٣ خطوات بسيطة</h2>
-        </div>
+@if (User.Identity == null || !User.Identity.IsAuthenticated)
+{
+    <section class="py-5 bg-white">
+        <div class="container">
+            <div class="text-center mb-5" data-aos="fade-up">
+                <span class="badge bg-success bg-opacity-10 text-success rounded-4 px-3 py-2 mb-3">كيف يعمل</span>
+                <h2 class="fw-bold text-dark">٣ خطوات بسيطة</h2>
+            </div>
 
-        <div class="row g-4 text-center">
-            <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
-                <div class="rounded-circle bg-success bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-3"
-                     style="width:80px;height:80px">
-                    <span class="fs-2 fw-bold text-success">١</span>
+            <div class="row g-4 text-center">
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="rounded-circle bg-success bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-3"
+                         style="width:80px;height:80px">
+                        <span class="fs-2 fw-bold text-success">١</span>
+                    </div>
+                    <h5 class="fw-bold">سجّل حسابك</h5>
+                    <p class="text-muted">أنشئ حسابك كمريض أو طبيب في دقيقة واحدة</p>
                 </div>
-                <h5 class="fw-bold">سجّل حسابك</h5>
-                <p class="text-muted">أنشئ حسابك كمريض أو طبيب في دقيقة واحدة</p>
-            </div>
-            <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
-                <div class="rounded-circle bg-success bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-3"
-                     style="width:80px;height:80px">
-                    <span class="fs-2 fw-bold text-success">٢</span>
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+                    <div class="rounded-circle bg-success bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-3"
+                         style="width:80px;height:80px">
+                        <span class="fs-2 fw-bold text-success">٢</span>
+                    </div>
+                    <h5 class="fw-bold">اوصف حالتك</h5>
+                    <p class="text-muted">أدخل أعراضك ودع الذكاء الاصطناعي يرشدك</p>
                 </div>
-                <h5 class="fw-bold">اوصف حالتك</h5>
-                <p class="text-muted">أدخل أعراضك ودع الذكاء الاصطناعي يرشدك</p>
-            </div>
-            <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
-                <div class="rounded-circle bg-success bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-3"
-                     style="width:80px;height:80px">
-                    <span class="fs-2 fw-bold text-success">٣</span>
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
+                    <div class="rounded-circle bg-success bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-3"
+                         style="width:80px;height:80px">
+                        <span class="fs-2 fw-bold text-success">٣</span>
+                    </div>
+                    <h5 class="fw-bold">احجز موعدك</h5>
+                    <p class="text-muted">اختر الطبيب والموعد المناسب واحصل على رعايتك</p>
                 </div>
-                <h5 class="fw-bold">احجز موعدك</h5>
-                <p class="text-muted">اختر الطبيب والموعد المناسب واحصل على رعايتك</p>
             </div>
         </div>
-    </div>
-</section>
+    </section>
+}
 
 <!-- ══════════════════════════════════════════ -->
-<!--  DOCTOR CTA SECTION                        -->
+<!--  DOCTOR CTA SECTION (Only for non-logged-in) -->
 <!-- ══════════════════════════════════════════ -->
-<section class="py-5">
-    <div class="container" data-aos="fade-up">
-        <div class="doctor-cta text-white rounded-5 p-5">
-            <div class="row align-items-center">
-                <div class="col-lg-8 mb-3 mb-lg-0">
-                    <h2 class="fw-bold mb-3">
-                        <i class="bi bi-heart-pulse me-2"></i>انضم لشبكة أطباء شفاء
-                    </h2>
-                    <p class="fs-5 mb-0 opacity-75">
-                        وسّع قاعدة مرضاك وأدِر عيادتك بذكاء. انضم لمئات الأطباء
-                        الذين يثقون بمنصة شفاء.
-                    </p>
-                </div>
-                <div class="col-lg-4 text-lg-end">
-                    <a class="btn btn-light text-success btn-lg rounded-4 px-4 fw-bold shadow-sm"
-                       asp-controller="Account" asp-action="Register">
-                        <i class="bi bi-person-plus me-1"></i>سجل كطبيب الآن
-                    </a>
+@if (User.Identity == null || !User.Identity.IsAuthenticated)
+{
+    <section class="py-5">
+        <div class="container" data-aos="fade-up">
+            <div class="doctor-cta text-white rounded-5 p-5">
+                <div class="row align-items-center">
+                    <div class="col-lg-8 mb-3 mb-lg-0">
+                        <h2 class="fw-bold mb-3">
+                            <i class="bi bi-heart-pulse me-2"></i>انضم لشبكة أطباء شفاء
+                        </h2>
+                        <p class="fs-5 mb-0 opacity-75">
+                            وسّع قاعدة مرضاك وأدِر عيادتك بذكاء. انضم لمئات الأطباء
+                            الذين يثقون بمنصة شفاء.
+                        </p>
+                    </div>
+                    <div class="col-lg-4 text-lg-end">
+                        <a class="btn btn-light text-success btn-lg rounded-4 px-4 fw-bold shadow-sm"
+                           asp-controller="Account" asp-action="Register">
+                            <i class="bi bi-person-plus me-1"></i>سجل كطبيب الآن
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
+}

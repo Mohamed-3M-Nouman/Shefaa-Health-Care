@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -9,6 +10,7 @@ using ShefaaHealthCare.Repositories.Interfaces;
 
 namespace ShefaaHealthCare.Controllers
 {
+    [Authorize]
     public class AccountController(
         UserManager<ApplicationUser> userManager,
         SignInManager<ApplicationUser> signInManager,
@@ -26,10 +28,67 @@ namespace ShefaaHealthCare.Controllers
 
 
         // ══════════════════════════════════════════
+        //  ACCOUNT PROFILE
+        // ══════════════════════════════════════════
+
+        [HttpGet]
+        public async Task<IActionResult> Index()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return RedirectToAction(nameof(Login));
+            }
+
+            var model = new AccountViewModel
+            {
+                Email = user.Email ?? string.Empty,
+                PhoneNumber = user.PhoneNumber,
+                UserType = user.UserType,
+                CreatedAt = user.CreatedAt,
+                FullName = user.UserName ?? user.Email ?? string.Empty
+            };
+
+            if (user.UserType == "Patient")
+            {
+                var patient = await _context.Patients
+                    .Include(p => p.PatientMedicalProfile)
+                    .FirstOrDefaultAsync(p => p.UserId == user.Id);
+
+                if (patient != null)
+                {
+                    model.FullName = patient.FullName;
+                    model.DateOfBirth = patient.DateOfBirth;
+                    model.Gender = patient.Gender;
+                    model.BloodType = patient.BloodType;
+                    model.ChronicDiseases = patient.PatientMedicalProfile?.ChronicDiseases;
+                }
+            }
+            else if (user.UserType == "Doctor")
+            {
+                var doctor = await _context.Doctors
+                    .Include(d => d.Specialization)
+                    .FirstOrDefaultAsync(d => d.UserId == user.Id);
+
+                if (doctor != null)
+                {
+                    model.FullName = doctor.FullName;
+                    model.SpecializationName = doctor.Specialization?.Name;
+                    model.ConsultationFee = doctor.ConsultationFee;
+                    model.IsVerified = doctor.IsVerified;
+                }
+            }
+
+            return View(model);
+        }
+
+
+        // ══════════════════════════════════════════
         //  LOGIN
         // ══════════════════════════════════════════
 
         [HttpGet]
+            [AllowAnonymous]
         public IActionResult Login(string? returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
@@ -38,6 +97,7 @@ namespace ShefaaHealthCare.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+            [AllowAnonymous]
         public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
@@ -62,6 +122,7 @@ namespace ShefaaHealthCare.Controllers
         // ══════════════════════════════════════════
 
         [HttpGet]
+            [AllowAnonymous]
         public async Task<IActionResult> Register()
         {
             // إرسال التخصصات للواجهة
@@ -87,6 +148,7 @@ namespace ShefaaHealthCare.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+            [AllowAnonymous]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
             // 1. حل كارثة الـ Validation

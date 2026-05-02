@@ -108,8 +108,6 @@
                         <div asp-validation-summary="All" class="alert alert-danger rounded-4 small py-2" role="alert"></div>
 
                         <form asp-action="Login" asp-controller="Account" method="post" id="loginForm">
-                            <input type="hidden" asp-for="@Model.RememberMe" />
-
                             <!-- Email -->
                             <div class="form-floating mb-3">
                                 <input asp-for="Email" type="email" class="form-control" id="loginEmail"

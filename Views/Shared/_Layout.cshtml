@@ -63,6 +63,9 @@
                         <a class="btn btn-outline-success rounded-4 px-3" asp-controller="Home" asp-action="Index">
                             <i class="bi bi-grid me-1"></i>لوحة التحكم
                         </a>
+                        <a class="btn btn-outline-success rounded-4 px-3" asp-controller="Account" asp-action="Index">
+                            <i class="bi bi-person-circle me-1"></i>الحساب
+                        </a>
                         <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
                             @Html.AntiForgeryToken()
                             <button type="submit" class="btn btn-success rounded-4 px-3">
