@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using ShefaaHealthCare.Models.Validation;
 
 namespace ShefaaHealthCare.Models.ViewModels
 {
@@ -28,6 +29,7 @@ namespace ShefaaHealthCare.Models.ViewModels
 
         [Required(ErrorMessage = "تاريخ الميلاد مطلوب")]
         [DataType(DataType.Date)]
+        [PastDate]
         [Display(Name = "تاريخ الميلاد")]
         public DateTime DateOfBirth { get; set; }
 
