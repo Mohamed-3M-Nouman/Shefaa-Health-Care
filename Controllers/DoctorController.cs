@@ -83,5 +83,13 @@ namespace ShefaaHealthCare.Controllers
 
             return View(doctor);
         }
+
+        // ══════════════════════════════════════════
+        //  DOCTOR DASHBOARD
+        // ══════════════════════════════════════════
+        public IActionResult Dashboard()
+        {
+            return View();
+        }
     }
 }

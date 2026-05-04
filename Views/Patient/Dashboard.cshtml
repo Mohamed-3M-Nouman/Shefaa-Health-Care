@@ -1,0 +1,204 @@
+@{
+    ViewData["Title"] = "لوحة تحكم المريض";
+}
+
+<div class="container py-5">
+    
+    <!-- Welcome Header -->
+    <div class="d-flex align-items-center mb-4 pb-3 border-bottom">
+        <div class="rounded-circle bg-success bg-opacity-10 d-flex align-items-center justify-content-center me-3" style="width: 60px; height: 60px;">
+            <i class="bi bi-person-fill text-success fs-2"></i>
+        </div>
+        <div>
+            <h2 class="fw-bold mb-1">مرحباً بك مجدداً</h2>
+            <p class="text-muted mb-0">لوحة التحكم الطبية الخاصة بك</p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Sidebar Navigation (Pills/Tabs) -->
+        <div class="col-lg-3">
+            <div class="card border-0 shadow-sm rounded-4 sticky-top" style="top: 100px;">
+                <div class="card-body p-3">
+                    <ul class="nav nav-pills flex-column gap-2" id="dashboardTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active text-start w-100 rounded-3 py-3" data-bs-toggle="pill" data-bs-target="#appointments" type="button" role="tab">
+                                <i class="bi bi-calendar-event me-2"></i> المواعيد القادمة
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link text-start w-100 rounded-3 py-3" data-bs-toggle="pill" data-bs-target="#history" type="button" role="tab">
+                                <i class="bi bi-file-medical me-2"></i> التاريخ الطبي
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link text-start w-100 rounded-3 py-3" data-bs-toggle="pill" data-bs-target="#prescriptions" type="button" role="tab">
+                                <i class="bi bi-capsule me-2"></i> الوصفات الطبية
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="tab-content" id="dashboardTabsContent">
+                
+                <!-- 1. Appointments Tab -->
+                <div class="tab-pane fade show active" id="appointments" role="tabpanel">
+                    <!-- Next Appointment Alert Card -->
+                    <div class="alert alert-success border-0 shadow-sm rounded-4 p-4 mb-4 d-flex align-items-center flex-wrap gap-3">
+                        <div class="bg-white rounded-circle d-flex flex-column align-items-center justify-content-center shadow-sm" style="width: 80px; height: 80px;">
+                            <span class="fs-4 fw-bold text-success mb-0 lh-1">15</span>
+                            <span class="small text-muted">مايو</span>
+                        </div>
+                        <div class="flex-grow-1">
+                            <span class="badge bg-success text-white rounded-pill mb-2">موعدك القادم</span>
+                            <h5 class="fw-bold mb-1">د. أحمد محمود - استشاري أمراض القلب</h5>
+                            <p class="mb-0 text-success-emphasis">
+                                <i class="bi bi-clock me-1"></i> 10:30 صباحاً | <i class="bi bi-geo-alt me-1 ms-2"></i> عيادة المهندسين
+                            </p>
+                        </div>
+                        <div>
+                            <button class="btn btn-outline-success bg-white rounded-pill px-4">تأجيل الموعد</button>
+                        </div>
+                    </div>
+
+                    <!-- Upcoming Appointments List -->
+                    <h5 class="fw-bold mb-3">مواعيد أخرى مجدولة</h5>
+                    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0 text-center">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="py-3">التاريخ والوقت</th>
+                                        <th class="py-3">الطبيب</th>
+                                        <th class="py-3">التخصص</th>
+                                        <th class="py-3">الحالة</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="py-3">22 مايو 2026 <br><small class="text-muted">12:00 م</small></td>
+                                        <td class="py-3 fw-bold">د. سارة خليل</td>
+                                        <td class="py-3">طب الأسنان</td>
+                                        <td class="py-3"><span class="badge bg-warning text-dark rounded-pill">مؤكد</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-3">05 يونيو 2026 <br><small class="text-muted">05:00 م</small></td>
+                                        <td class="py-3 fw-bold">د. خالد سامي</td>
+                                        <td class="py-3">جلدية</td>
+                                        <td class="py-3"><span class="badge bg-secondary rounded-pill">قيد الانتظار</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Medical History Tab -->
+                <div class="tab-pane fade" id="history" role="tabpanel">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="fw-bold mb-0">التاريخ الطبي والتحاليل</h5>
+                        <button class="btn btn-success rounded-pill px-4"><i class="bi bi-upload me-2"></i>إضافة سجل جديد</button>
+                    </div>
+
+                    <div class="card border-0 shadow-sm rounded-4">
+                        <div class="list-group list-group-flush rounded-4">
+                            <!-- Record 1 -->
+                            <div class="list-group-item p-4 border-bottom d-flex gap-3">
+                                <div class="bg-primary bg-opacity-10 text-primary rounded-3 p-3 d-flex align-items-center">
+                                    <i class="bi bi-file-earmark-text fs-3"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between">
+                                        <h6 class="fw-bold mb-1">تحليل دم شامل (CBC)</h6>
+                                        <small class="text-muted">10 أبريل 2026</small>
+                                    </div>
+                                    <p class="text-muted small mb-2">مختبرات النور - بناءً على طلب د. أحمد محمود</p>
+                                    <button class="btn btn-sm btn-outline-primary rounded-pill">تحميل التقرير <i class="bi bi-download ms-1"></i></button>
+                                </div>
+                            </div>
+                            <!-- Record 2 -->
+                            <div class="list-group-item p-4 d-flex gap-3">
+                                <div class="bg-info bg-opacity-10 text-info rounded-3 p-3 d-flex align-items-center">
+                                    <i class="bi bi-file-earmark-image fs-3"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between">
+                                        <h6 class="fw-bold mb-1">أشعة مقطعية (CT Scan)</h6>
+                                        <small class="text-muted">15 مارس 2026</small>
+                                    </div>
+                                    <p class="text-muted small mb-2">مركز الأشعة الحديثة</p>
+                                    <button class="btn btn-sm btn-outline-info rounded-pill">عرض الأشعة <i class="bi bi-eye ms-1"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Prescriptions Tab -->
+                <div class="tab-pane fade" id="prescriptions" role="tabpanel">
+                    <h5 class="fw-bold mb-4">الوصفات الطبية (الروشتات)</h5>
+                    <div class="row g-4">
+                        <!-- Prescription 1 -->
+                        <div class="col-md-6">
+                            <div class="card border-0 shadow-sm rounded-4 h-100 border-start border-4 border-success">
+                                <div class="card-body p-4">
+                                    <div class="d-flex justify-content-between mb-3">
+                                        <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-1">فعالة</span>
+                                        <small class="text-muted">01 مايو 2026</small>
+                                    </div>
+                                    <h6 class="fw-bold mb-1">د. أحمد محمود</h6>
+                                    <p class="text-muted small border-bottom pb-2 mb-3">استشاري قلب</p>
+                                    
+                                    <ul class="list-unstyled small mb-0">
+                                        <li class="mb-2"><i class="bi bi-capsule text-success me-2"></i>Concor 5mg <span class="text-muted ms-2">(مرة يومياً)</span></li>
+                                        <li><i class="bi bi-capsule text-success me-2"></i>Aspirin 81mg <span class="text-muted ms-2">(بعد الغداء)</span></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Prescription 2 -->
+                        <div class="col-md-6">
+                            <div class="card border-0 shadow-sm rounded-4 h-100 border-start border-4 border-secondary opacity-75">
+                                <div class="card-body p-4">
+                                    <div class="d-flex justify-content-between mb-3">
+                                        <span class="badge bg-secondary bg-opacity-10 text-secondary rounded-pill px-3 py-1">منتهية</span>
+                                        <small class="text-muted">15 فبراير 2026</small>
+                                    </div>
+                                    <h6 class="fw-bold mb-1">د. هدى صالح</h6>
+                                    <p class="text-muted small border-bottom pb-2 mb-3">باطنة عامة</p>
+                                    
+                                    <ul class="list-unstyled small mb-0 text-muted">
+                                        <li class="mb-2"><i class="bi bi-capsule me-2"></i>Panadol Extra <span class="ms-2">(عند اللزوم)</span></li>
+                                        <li><i class="bi bi-capsule me-2"></i>Augmentin 1g <span class="ms-2">(لمدة 7 أيام)</span></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Styling active state for nav-pills to blend with Bootstrap utilities */
+    #dashboardTabs .nav-link.active {
+        background-color: var(--bs-success);
+        color: white !important;
+        font-weight: bold;
+    }
+    #dashboardTabs .nav-link {
+        color: #495057;
+        transition: 0.3s ease;
+    }
+    #dashboardTabs .nav-link:hover:not(.active) {
+        background-color: rgba(25, 135, 84, 0.05);
+        color: var(--bs-success);
+    }
+</style>
