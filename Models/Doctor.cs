@@ -39,6 +39,19 @@ namespace ShefaaHealthCare.Models
         [MaxLength(500)]
         public string? CertificatePath { get; set; }
 
+        [MaxLength(100)]
+        public string? City { get; set; }
+
+        [MaxLength(250)]
+        public string? ClinicAddress { get; set; }
+
+        public int ExperienceYears { get; set; } = 0;
+
+        [Column(TypeName = "decimal(3,1)")]
+        public decimal Rating { get; set; } = 0.0m;
+
+        public int ReviewCount { get; set; } = 0;
+
         // Navigation Properties
         public virtual ICollection<DoctorSchedule> Schedules { get; set; } = [];
         public virtual ICollection<Appointment> Appointments { get; set; } = [];

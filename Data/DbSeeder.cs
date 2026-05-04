@@ -1,3 +1,4 @@
+using Bogus;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ShefaaHealthCare.Models;
@@ -9,8 +10,7 @@ namespace ShefaaHealthCare.Data
         public static async Task SeedRolesAndAdminAsync(IServiceProvider serviceProvider)
         {
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-
-            string[] roles = ["Admin", "Doctor", "Patient"];
+            string[] roles = { "Admin", "Doctor", "Patient" };
 
             foreach (var role in roles)
             {
@@ -21,193 +21,76 @@ namespace ShefaaHealthCare.Data
             }
         }
 
-        public static async Task SeedSpecializationsAsync(IServiceProvider serviceProvider)
+        public static async Task SeedDoctorsAsync(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
-            var context = serviceProvider.GetRequiredService<ApplicationDbContext>();
-
-            var specializations = new[]
-            {
-                "مخ واعصاب",
-                "جلدية",
-                "نفسية و عصبية",
-                "باطنة",
-                "نساء و توليد",
-                "جراحة",
-                "مسالك بولية",
-                "انف و اذن و حنجرة",
-                "عظام",
-                "عيون",
-                "اسنان",
-                "ذكورة",
-                "اشعة و تحاليل",
-                "علاج طبيعي",
-                "قلب"
+            // 1. Seed Specializations
+            var specializationsList = new List<string> 
+            { 
+                "باطنة", "أطفال", "عظام", "جلدية", "عيون", 
+                "أنف وأذن وحنجرة", "أسنان", "نساء وتوليد", "مخ وأعصاب", "مسالك بولية" 
             };
 
-            var existingNames = await context.Specializations
-                .Select(s => s.Name)
-                .ToListAsync();
-
-            var missingSpecializations = specializations
-                .Where(name => !existingNames.Contains(name))
-                .Select(name => new Specialization { Name = name })
+            var existingSpecs = await context.Specializations.Select(s => s.Name).ToListAsync();
+            var specsToAdd = specializationsList
+                .Where(s => !existingSpecs.Contains(s))
+                .Select(s => new Specialization { Name = s })
                 .ToList();
 
-            if (missingSpecializations.Count > 0)
+            if (specsToAdd.Any())
             {
-                await context.Specializations.AddRangeAsync(missingSpecializations);
+                await context.Specializations.AddRangeAsync(specsToAdd);
                 await context.SaveChangesAsync();
             }
-        }
 
-        // ══════════════════════════════════════════
-        //  TEST USERS (Development Only)
-        // ══════════════════════════════════════════
+            var allSpecializations = await context.Specializations.ToListAsync();
+            if (!allSpecializations.Any()) return;
 
-        public static async Task SeedTestUsersAsync(IServiceProvider serviceProvider)
-        {
-            var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-            var context = serviceProvider.GetRequiredService<ApplicationDbContext>();
+            // 2. Seed Doctors using Bogus
+            var existingDoctorsCount = await context.Doctors.CountAsync();
+            if (existingDoctorsCount >= 50) return; // Prevent duplicating seeds
 
-            // ─── Test Doctor ───
-            await SeedTestDoctorAsync(userManager, context);
+            var faker = new Faker("ar");
 
-            // ─── Test Patient ───
-            await SeedTestPatientAsync(userManager, context);
-        }
-
-        private static async Task SeedTestDoctorAsync(
-            UserManager<ApplicationUser> userManager,
-            ApplicationDbContext context)
-        {
-            const string doctorEmail = "doctor@shefaa.com";
-            const string doctorPassword = "Doctor@123";
-
-            // تجنب التكرار - إذا موجود بالفعل لا تنشئه
-            if (await userManager.FindByEmailAsync(doctorEmail) != null)
-                return;
-
-            // 1. إنشاء حساب Identity
-            var doctorUser = new ApplicationUser
+            for (int i = 0; i < 50; i++)
             {
-                UserName = doctorEmail,
-                Email = doctorEmail,
-                EmailConfirmed = true,
-                PhoneNumber = "01012345678",
-                UserType = "Doctor",
-                CreatedAt = DateTime.Now
-            };
+                var email = faker.Internet.Email();
+                if (await userManager.FindByEmailAsync(email) != null) continue;
 
-            var result = await userManager.CreateAsync(doctorUser, doctorPassword);
-            if (!result.Succeeded) return;
-
-            await userManager.AddToRoleAsync(doctorUser, "Doctor");
-
-            // 2. إيجاد تخصص "قلب"
-            var cardioSpec = await context.Specializations
-                .FirstOrDefaultAsync(s => s.Name == "قلب");
-
-            if (cardioSpec == null) return;
-
-            // 3. إنشاء سجل الطبيب (Verified = true للاختبار)
-            var doctor = new Doctor
-            {
-                UserId = doctorUser.Id,
-                FullName = "د. أحمد محمد",
-                SpecializationId = cardioSpec.Id,
-                ConsultationFee = 250.00m,
-                Bio = "استشاري أمراض القلب والأوعية الدموية - خبرة +15 سنة في جراحات القلب المفتوح والقسطرة التشخيصية والعلاجية.",
-                IsVerified = true,
-                SyndicateIdCardPath = null,
-                CertificatePath = null
-            };
-
-            context.Doctors.Add(doctor);
-            await context.SaveChangesAsync();
-
-            // 4. إنشاء جدول مواعيد (الأحد - الاثنين - الأربعاء)
-            var schedules = new List<DoctorSchedule>
-            {
-                new()
+                var user = new ApplicationUser
                 {
-                    DoctorId = doctor.Id,
-                    DayOfWeek = 0, // الأحد
-                    StartTime = new TimeSpan(9, 0, 0),
-                    EndTime = new TimeSpan(14, 0, 0),
-                    SlotDurationMinutes = 30
-                },
-                new()
+                    UserName = email,
+                    Email = email,
+                    EmailConfirmed = true,
+                    PhoneNumber = faker.Phone.PhoneNumber("010########"),
+                    UserType = "Doctor",
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                var result = await userManager.CreateAsync(user, "Doctor@123");
+                if (result.Succeeded)
                 {
-                    DoctorId = doctor.Id,
-                    DayOfWeek = 1, // الاثنين
-                    StartTime = new TimeSpan(10, 0, 0),
-                    EndTime = new TimeSpan(16, 0, 0),
-                    SlotDurationMinutes = 30
-                },
-                new()
-                {
-                    DoctorId = doctor.Id,
-                    DayOfWeek = 3, // الأربعاء
-                    StartTime = new TimeSpan(13, 0, 0),
-                    EndTime = new TimeSpan(18, 0, 0),
-                    SlotDurationMinutes = 20
+                    // Attempt to add role (Requires roles to be seeded first)
+                    try { await userManager.AddToRoleAsync(user, "Doctor"); } catch { }
+
+                    var doctor = new Doctor
+                    {
+                        UserId = user.Id,
+                        FullName = $"د. {faker.Name.FullName()}",
+                        SpecializationId = faker.PickRandom(allSpecializations).Id,
+                        ConsultationFee = faker.Random.Number(10, 50) * 10, // 100–500 EGP, rounded to nearest 10
+                        Bio = faker.Lorem.Paragraph(),
+                        IsVerified = true,
+                        City = faker.Address.City(),
+                        ClinicAddress = faker.Address.StreetAddress(),
+                        ExperienceYears = faker.Random.Number(5, 30),
+                        Rating = Math.Round(3.5m + (decimal)(faker.Random.Double() * 1.5), 1),
+                        ReviewCount = faker.Random.Number(10, 500)
+                    };
+
+                    context.Doctors.Add(doctor);
                 }
-            };
+            }
 
-            context.DoctorSchedules.AddRange(schedules);
-            await context.SaveChangesAsync();
-        }
-
-        private static async Task SeedTestPatientAsync(
-            UserManager<ApplicationUser> userManager,
-            ApplicationDbContext context)
-        {
-            const string patientEmail = "patient@shefaa.com";
-            const string patientPassword = "Patient@123";
-
-            // تجنب التكرار
-            if (await userManager.FindByEmailAsync(patientEmail) != null)
-                return;
-
-            // 1. إنشاء حساب Identity
-            var patientUser = new ApplicationUser
-            {
-                UserName = patientEmail,
-                Email = patientEmail,
-                EmailConfirmed = true,
-                PhoneNumber = "01098765432",
-                UserType = "Patient",
-                CreatedAt = DateTime.Now
-            };
-
-            var result = await userManager.CreateAsync(patientUser, patientPassword);
-            if (!result.Succeeded) return;
-
-            await userManager.AddToRoleAsync(patientUser, "Patient");
-
-            // 2. إنشاء سجل المريض
-            var patient = new Patient
-            {
-                UserId = patientUser.Id,
-                FullName = "محمد علي حسن",
-                DateOfBirth = new DateTime(1995, 3, 15),
-                Gender = "ذكر",
-                BloodType = "A+"
-            };
-
-            context.Patients.Add(patient);
-            await context.SaveChangesAsync();
-
-            // 3. إنشاء الملف الطبي
-            var medicalProfile = new PatientMedicalProfile
-            {
-                PatientId = patient.Id,
-                ChronicDiseases = "ضغط دم مرتفع",
-                Allergies = "حساسية من البنسلين",
-                FamilyHistory = "تاريخ عائلي لأمراض القلب"
-            };
-
-            context.PatientMedicalProfiles.Add(medicalProfile);
             await context.SaveChangesAsync();
         }
     }

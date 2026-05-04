@@ -1,5 +1,11 @@
+@model IEnumerable<ShefaaHealthCare.Models.Doctor>
 @{
     ViewData["Title"] = "دليل الأطباء";
+    var specializations = ViewBag.Specializations as IEnumerable<ShefaaHealthCare.Models.Specialization>;
+    var searchQuery = ViewBag.SearchQuery as string;
+    var selectedSpec = ViewBag.SelectedSpecialization as int?;
+    var currentPage = ViewBag.CurrentPage as int? ?? 1;
+    var totalPages = ViewBag.TotalPages as int? ?? 1;
 }
 
 <div class="bg-success bg-opacity-10 py-4 border-bottom">
@@ -11,215 +17,114 @@
 <div class="container py-5">
     <!-- Filters Bar -->
     <div class="card border-0 shadow-sm rounded-4 mb-5 p-3">
-        <form class="row g-3 align-items-center">
+        <form method="get" asp-action="Index" class="row g-3 align-items-center">
             <div class="col-md-5">
-                <input type="text" id="searchInput" class="form-control form-control-lg bg-light border-0" placeholder="ابحث بالاسم...">
+                <input type="text" name="searchQuery" value="@searchQuery" class="form-control form-control-lg bg-light border-0" placeholder="ابحث بالاسم، التخصص، أو رقم الهاتف...">
             </div>
             <div class="col-md-4">
-                <select id="specialtyFilter" class="form-select form-select-lg bg-light border-0">
-                    <option value="all" selected>كل التخصصات</option>
-                    <option value="قلب">قلب وأوعية دموية</option>
-                    <option value="أسنان">طب الأسنان</option>
-                    <option value="جلدية">أمراض جلدية</option>
-                    <option value="باطنة">باطنة عامة</option>
-                    <option value="عظام">جراحة العظام</option>
+                <select name="specializationId" class="form-select form-select-lg bg-light border-0">
+                    <option value="">كل التخصصات</option>
+                    @if (specializations != null)
+                    {
+                        foreach (var spec in specializations)
+                        {
+                            if (selectedSpec.HasValue && spec.Id == selectedSpec.Value)
+                            {
+                                <option value="@spec.Id" selected>@spec.Name</option>
+                            }
+                            else
+                            {
+                                <option value="@spec.Id">@spec.Name</option>
+                            }
+                        }
+                    }
                 </select>
             </div>
-            <div class="col-md-3">
-                <button type="button" class="btn btn-success btn-lg w-100" id="resetFilters">إعادة تعيين</button>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-success btn-lg flex-fill">بحث <i class="bi bi-search"></i></button>
+                <a asp-action="Index" class="btn btn-light btn-lg text-muted"><i class="bi bi-arrow-clockwise"></i></a>
             </div>
         </form>
     </div>
 
-    <!-- Doctors Grid (Static Demo Data) -->
-    <div class="row g-4" id="doctorsGrid">
-        
-        <!-- Doctor 1 -->
-        <div class="col-xl-3 col-lg-4 col-md-6 doctor-card" data-name="أحمد محمود" data-specialty="قلب">
-            <div class="card border-0 shadow-sm rounded-4 h-100">
-                <div class="card-body text-center p-4">
-                    <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 90px; height: 90px;">
-                        <i class="bi bi-person-fill text-success fs-1"></i>
+    <!-- Doctors Grid -->
+    <div class="row g-4">
+        @if (Model != null && Model.Any())
+        {
+            foreach (var doc in Model)
+            {
+                <div class="col-xl-4 col-lg-4 col-md-6">
+                    <div class="card border-0 shadow-sm rounded-4 h-100">
+                        <div class="card-body text-center p-4">
+                            <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3 w-25 h-auto ratio ratio-1x1" style="max-width: 90px; max-height: 90px;">
+                                <i class="bi bi-person-fill text-success fs-1"></i>
+                            </div>
+                            <h5 class="fw-bold mb-1 doc-name">@doc.FullName</h5>
+                            <p class="text-success small fw-medium mb-3 doc-specialty">استشاري @doc.Specialization?.Name</p>
+                            
+                            <div class="text-warning mb-3">
+                                @{
+                                    int fullStars = (int)Math.Floor(doc.Rating);
+                                    bool hasHalfStar = (doc.Rating - fullStars) >= 0.5m;
+                                    int emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+                                    
+                                    for(int i = 0; i < fullStars; i++) { <i class="bi bi-star-fill"></i> }
+                                    if(hasHalfStar) { <i class="bi bi-star-half"></i> }
+                                    for(int i = 0; i < emptyStars; i++) { <i class="bi bi-star"></i> }
+                                }
+                                <span class="text-muted small ms-1">(@doc.Rating.ToString("0.0"))</span>
+                            </div>
+
+                            <ul class="list-unstyled text-muted small text-start mb-4">
+                                <li class="mb-2"><i class="bi bi-geo-alt me-2 text-success"></i>@(doc.City ?? "غير محدد") - @(doc.ClinicAddress ?? "")</li>
+                                <li class="mb-2"><i class="bi bi-briefcase me-2 text-success"></i>خبرة @doc.ExperienceYears سنة</li>
+                                <li class="mb-2"><i class="bi bi-cash me-2 text-success"></i>سعر الكشف: @doc.ConsultationFee ج.م</li>
+                            </ul>
+                        </div>
+                        <div class="card-footer bg-transparent border-0 p-3 pt-0">
+                            <a asp-controller="Appointment" asp-action="Checkout" asp-route-doctorId="@doc.Id" class="btn btn-outline-success w-100 rounded-pill">احجز موعداً</a>
+                        </div>
                     </div>
-                    <h5 class="fw-bold mb-1 doc-name">د. أحمد محمود</h5>
-                    <p class="text-success small fw-medium mb-3 doc-specialty">استشاري أمراض القلب</p>
-                    
-                    <div class="text-warning mb-3">
-                        <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i>
-                        <span class="text-muted small ms-1">(4.8)</span>
-                    </div>
-
-                    <ul class="list-unstyled text-muted small text-start mb-4">
-                        <li class="mb-2"><i class="bi bi-geo-alt me-2 text-success"></i>عيادة المهندسين، القاهرة</li>
-                        <li class="mb-2"><i class="bi bi-briefcase me-2 text-success"></i>خبرة +15 سنة</li>
-                        <li class="mb-2"><i class="bi bi-telephone me-2 text-success"></i>01012345678</li>
-                    </ul>
                 </div>
-                <div class="card-footer bg-transparent border-0 p-3 pt-0">
-                    <button class="btn btn-outline-success w-100 rounded-pill">احجز موعداً</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Doctor 2 -->
-        <div class="col-xl-3 col-lg-4 col-md-6 doctor-card" data-name="سارة خليل" data-specialty="أسنان">
-            <div class="card border-0 shadow-sm rounded-4 h-100">
-                <div class="card-body text-center p-4">
-                    <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 90px; height: 90px;">
-                        <i class="bi bi-person-fill text-primary fs-1"></i>
-                    </div>
-                    <h5 class="fw-bold mb-1 doc-name">د. سارة خليل</h5>
-                    <p class="text-primary small fw-medium mb-3 doc-specialty">أخصائية طب الأسنان</p>
-                    
-                    <div class="text-warning mb-3">
-                        <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
-                        <span class="text-muted small ms-1">(5.0)</span>
-                    </div>
-
-                    <ul class="list-unstyled text-muted small text-start mb-4">
-                        <li class="mb-2"><i class="bi bi-geo-alt me-2 text-primary"></i>مركز سمايل، الإسكندرية</li>
-                        <li class="mb-2"><i class="bi bi-briefcase me-2 text-primary"></i>خبرة 8 سنوات</li>
-                        <li class="mb-2"><i class="bi bi-telephone me-2 text-primary"></i>01198765432</li>
-                    </ul>
-                </div>
-                <div class="card-footer bg-transparent border-0 p-3 pt-0">
-                    <button class="btn btn-outline-primary w-100 rounded-pill">احجز موعداً</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Doctor 3 -->
-        <div class="col-xl-3 col-lg-4 col-md-6 doctor-card" data-name="خالد سامي" data-specialty="جلدية">
-            <div class="card border-0 shadow-sm rounded-4 h-100">
-                <div class="card-body text-center p-4">
-                    <div class="bg-info bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 90px; height: 90px;">
-                        <i class="bi bi-person-fill text-info fs-1"></i>
-                    </div>
-                    <h5 class="fw-bold mb-1 doc-name">د. خالد سامي</h5>
-                    <p class="text-info small fw-medium mb-3 doc-specialty">استشاري الأمراض الجلدية</p>
-                    
-                    <div class="text-warning mb-3">
-                        <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star"></i>
-                        <span class="text-muted small ms-1">(4.2)</span>
-                    </div>
-
-                    <ul class="list-unstyled text-muted small text-start mb-4">
-                        <li class="mb-2"><i class="bi bi-geo-alt me-2 text-info"></i>عيادات ديرما، المعادي</li>
-                        <li class="mb-2"><i class="bi bi-briefcase me-2 text-info"></i>خبرة 12 سنة</li>
-                        <li class="mb-2"><i class="bi bi-telephone me-2 text-info"></i>01234567890</li>
-                    </ul>
-                </div>
-                <div class="card-footer bg-transparent border-0 p-3 pt-0">
-                    <button class="btn btn-outline-info w-100 rounded-pill">احجز موعداً</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Doctor 4 -->
-        <div class="col-xl-3 col-lg-4 col-md-6 doctor-card" data-name="هدى منصور" data-specialty="باطنة">
-            <div class="card border-0 shadow-sm rounded-4 h-100">
-                <div class="card-body text-center p-4">
-                    <div class="bg-danger bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 90px; height: 90px;">
-                        <i class="bi bi-person-fill text-danger fs-1"></i>
-                    </div>
-                    <h5 class="fw-bold mb-1 doc-name">د. هدى منصور</h5>
-                    <p class="text-danger small fw-medium mb-3 doc-specialty">أخصائية باطنة عامة</p>
-                    
-                    <div class="text-warning mb-3">
-                        <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i>
-                        <span class="text-muted small ms-1">(4.6)</span>
-                    </div>
-
-                    <ul class="list-unstyled text-muted small text-start mb-4">
-                        <li class="mb-2"><i class="bi bi-geo-alt me-2 text-danger"></i>مستشفى الشفاء، زايد</li>
-                        <li class="mb-2"><i class="bi bi-briefcase me-2 text-danger"></i>خبرة 10 سنوات</li>
-                        <li class="mb-2"><i class="bi bi-telephone me-2 text-danger"></i>01011223344</li>
-                    </ul>
-                </div>
-                <div class="card-footer bg-transparent border-0 p-3 pt-0">
-                    <button class="btn btn-outline-danger w-100 rounded-pill">احجز موعداً</button>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Doctor 5 -->
-        <div class="col-xl-3 col-lg-4 col-md-6 doctor-card" data-name="مصطفى كمال" data-specialty="عظام">
-            <div class="card border-0 shadow-sm rounded-4 h-100">
-                <div class="card-body text-center p-4">
-                    <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 90px; height: 90px;">
-                        <i class="bi bi-person-fill text-success fs-1"></i>
-                    </div>
-                    <h5 class="fw-bold mb-1 doc-name">د. مصطفى كمال</h5>
-                    <p class="text-success small fw-medium mb-3 doc-specialty">استشاري جراحة العظام</p>
-                    
-                    <div class="text-warning mb-3">
-                        <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
-                        <span class="text-muted small ms-1">(4.9)</span>
-                    </div>
-
-                    <ul class="list-unstyled text-muted small text-start mb-4">
-                        <li class="mb-2"><i class="bi bi-geo-alt me-2 text-success"></i>المركز الطبي، التجمع</li>
-                        <li class="mb-2"><i class="bi bi-briefcase me-2 text-success"></i>خبرة 20 سنة</li>
-                        <li class="mb-2"><i class="bi bi-telephone me-2 text-success"></i>01122334455</li>
-                    </ul>
-                </div>
-                <div class="card-footer bg-transparent border-0 p-3 pt-0">
-                    <button class="btn btn-outline-success w-100 rounded-pill">احجز موعداً</button>
-                </div>
-            </div>
-        </div>
-
-    </div>
-    
-    <!-- No Results Message -->
-    <div id="noResults" class="text-center py-5 d-none">
-        <i class="bi bi-search text-muted mb-3" style="font-size: 4rem; opacity: 0.3;"></i>
-        <h5 class="text-muted fw-bold">لم يتم العثور على أطباء</h5>
-        <p class="text-muted">حاول تغيير معايير البحث.</p>
-    </div>
-</div>
-
-@section Scripts {
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const searchInput = document.getElementById("searchInput");
-        const specialtyFilter = document.getElementById("specialtyFilter");
-        const resetFiltersBtn = document.getElementById("resetFilters");
-        const doctorCards = document.querySelectorAll(".doctor-card");
-        const noResults = document.getElementById("noResults");
-
-        function filterDoctors() {
-            const searchTerm = searchInput.value.toLowerCase();
-            const specialty = specialtyFilter.value;
-            let visibleCount = 0;
-
-            doctorCards.forEach(card => {
-                const nameMatch = card.getAttribute("data-name").toLowerCase().includes(searchTerm);
-                const specialtyMatch = (specialty === "all") || (card.getAttribute("data-specialty") === specialty);
-
-                if (nameMatch && specialtyMatch) {
-                    card.classList.remove("d-none");
-                    visibleCount++;
-                } else {
-                    card.classList.add("d-none");
-                }
-            });
-
-            if (visibleCount === 0) {
-                noResults.classList.remove("d-none");
-            } else {
-                noResults.classList.add("d-none");
             }
         }
+        else
+        {
+            <!-- No Results Message -->
+            <div class="col-12 text-center py-5">
+                <i class="bi bi-search text-muted mb-3" style="font-size: 4rem; opacity: 0.3;"></i>
+                <h5 class="text-muted fw-bold">لم يتم العثور على أطباء</h5>
+                <p class="text-muted">حاول تغيير معايير البحث أو تصفح تخصص آخر.</p>
+            </div>
+        }
+    </div>
 
-        searchInput.addEventListener("input", filterDoctors);
-        specialtyFilter.addEventListener("change", filterDoctors);
-        
-        resetFiltersBtn.addEventListener("click", function() {
-            searchInput.value = "";
-            specialtyFilter.value = "all";
-            filterDoctors();
-        });
-    });
-</script>
-}
+    <!-- Pagination -->
+    @if (totalPages > 1)
+    {
+        <nav aria-label="Page navigation" class="mt-5">
+            <ul class="pagination justify-content-center">
+                @if (currentPage > 1)
+                {
+                    <li class="page-item">
+                        <a class="page-link text-success" href="@Url.Action("Index", new { searchQuery = searchQuery, specializationId = selectedSpec, page = currentPage - 1 })">السابق</a>
+                    </li>
+                }
+                
+                @for (int i = 1; i <= totalPages; i++)
+                {
+                    <li class="page-item @(i == currentPage ? "active" : "")">
+                        <a class="page-link @(i == currentPage ? "bg-success border-success text-white" : "text-success")" href="@Url.Action("Index", new { searchQuery = searchQuery, specializationId = selectedSpec, page = i })">@i</a>
+                    </li>
+                }
+
+                @if (currentPage < totalPages)
+                {
+                    <li class="page-item">
+                        <a class="page-link text-success" href="@Url.Action("Index", new { searchQuery = searchQuery, specializationId = selectedSpec, page = currentPage + 1 })">التالي</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
+</div>

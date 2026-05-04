@@ -3,64 +3,68 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ShefaaHealthCare.Data;
 using ShefaaHealthCare.Models;
-using ShefaaHealthCare.Repositories.Interfaces;
 
 namespace ShefaaHealthCare.Controllers
 {
     public class DoctorController : Controller
     {
-        private readonly IUnitOfWork _unitOfWork;
         private readonly ApplicationDbContext _context;
 
-        public DoctorController(IUnitOfWork unitOfWork, ApplicationDbContext context)
+        public DoctorController(ApplicationDbContext context)
         {
-            _unitOfWork = unitOfWork;
             _context = context;
         }
 
         // ══════════════════════════════════════════
-        //  SEARCH / LIST DOCTORS
+        //  SEARCH / LIST DOCTORS (With Pagination)
         // ══════════════════════════════════════════
-
         [AllowAnonymous]
-        public async Task<IActionResult> Index(string? search = null, int? specializationId = null)
+        public async Task<IActionResult> Index(string? searchQuery, int? specializationId, int page = 1)
         {
+            int pageSize = 9; // 9 doctors per page
+
             var query = _context.Doctors
                 .Include(d => d.User)
                 .Include(d => d.Specialization)
                 .Include(d => d.Schedules)
                 .AsQueryable();
 
-            // Search by doctor name or specialization
-            if (!string.IsNullOrWhiteSpace(search))
+            // Apply Search Filter
+            if (!string.IsNullOrWhiteSpace(searchQuery))
             {
                 query = query.Where(d =>
-                    d.FullName.Contains(search) ||
-                    d.Specialization != null && d.Specialization.Name.Contains(search) ||
-                    d.User != null && d.User.PhoneNumber != null && d.User.PhoneNumber.Contains(search)
+                    d.FullName.Contains(searchQuery) ||
+                    (d.Specialization != null && d.Specialization.Name.Contains(searchQuery)) ||
+                    (d.User != null && d.User.PhoneNumber != null && d.User.PhoneNumber.Contains(searchQuery))
                 );
             }
 
-            // Filter by specialization
+            // Apply Specialization Filter
             if (specializationId.HasValue && specializationId > 0)
             {
                 query = query.Where(d => d.SpecializationId == specializationId);
             }
 
-            // Only show verified doctors
+            // Show Verified Doctors Only
             query = query.Where(d => d.IsVerified);
 
+            // Calculate Pagination
+            int totalItems = await query.CountAsync();
+            int totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+
             var doctors = await query
-                .OrderBy(d => d.FullName)
+                .OrderByDescending(d => d.Rating) // Order by top rated first
+                .ThenBy(d => d.FullName)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
 
-            // Get all specializations for filter dropdown
-            var specializations = await _unitOfWork.Repository<Specialization>()
-                .GetAllAsync();
-
-            ViewBag.Search = search;
+            // Populate ViewBags for UI binding
+            ViewBag.SearchQuery = searchQuery;
             ViewBag.SelectedSpecialization = specializationId;
-            ViewBag.Specializations = specializations;
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = totalPages;
+            ViewBag.Specializations = await _context.Specializations.OrderBy(s => s.Name).ToListAsync();
 
             return View(doctors);
         }
@@ -68,7 +72,6 @@ namespace ShefaaHealthCare.Controllers
         // ══════════════════════════════════════════
         //  DOCTOR PROFILE
         // ══════════════════════════════════════════
-
         [AllowAnonymous]
         public async Task<IActionResult> Profile(int id)
         {

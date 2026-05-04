@@ -13,12 +13,13 @@ namespace ShefaaHealthCare.Models.ViewModels
 
         [Required(ErrorMessage = "البريد الإلكتروني مطلوب")]
         [EmailAddress(ErrorMessage = "صيغة البريد الإلكتروني غير صحيحة")]
+        [Microsoft.AspNetCore.Mvc.Remote(action: "IsEmailInUse", controller: "Account", ErrorMessage = "هذا البريد الإلكتروني مسجل لدينا بالفعل. يرجى تسجيل الدخول.")]
         [Display(Name = "البريد الإلكتروني")]
         public string Email { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "كلمة المرور مطلوبة")]
         [DataType(DataType.Password)]
-        [MinLength(6, ErrorMessage = "كلمة المرور يجب أن تكون 6 أحرف على الأقل")]
+        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$", ErrorMessage = "يجب أن تحتوي الكلمة على 6 أحرف على الأقل، حرف كبير، حرف صغير، رقم، ورمز خاص")]
         [Display(Name = "كلمة المرور")]
         public string Password { get; set; } = string.Empty;
 

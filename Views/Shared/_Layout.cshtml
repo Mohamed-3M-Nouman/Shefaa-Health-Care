@@ -81,12 +81,17 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a id="navAppointments" class="nav-link text-dark fw-medium" href="#">
+                            <a id="navAiTriage" class="nav-link text-dark fw-bold text-success" asp-controller="Ai" asp-action="Triage">
+                                <i class="bi bi-robot me-1"></i>الممرض الذكي
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a id="navAppointments" class="nav-link text-dark fw-medium" asp-controller="Patient" asp-action="Appointments">
                                 <i class="bi bi-calendar2-check me-1"></i>المواعيد
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a id="navMedicalRecords" class="nav-link text-dark fw-medium" href="#">
+                            <a id="navMedicalRecords" class="nav-link text-dark fw-medium" asp-controller="Patient" asp-action="MedicalProfile">
                                 <i class="bi bi-folder2-open me-1"></i>السجلات الطبية
                             </a>
                         </li>
@@ -131,6 +136,11 @@
                         <li class="nav-item">
                             <a id="navServices" class="nav-link text-dark fw-medium" asp-controller="Doctor" asp-action="Index">
                                 <i class="bi bi-hospital me-1"></i>خدماتنا
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a id="navAiTriagePub" class="nav-link text-dark fw-bold text-success" asp-controller="Ai" asp-action="Triage">
+                                <i class="bi bi-robot me-1"></i>الممرض الذكي
                             </a>
                         </li>
                         <li class="nav-item">

@@ -142,6 +142,21 @@ namespace ShefaaHealthCare.Controllers
             return View(model);
         }
 
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<IActionResult> IsEmailInUse(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                return Json(true);
+            }
+            else
+            {
+                return Json($"البريد الإلكتروني '{email}' مسجل بالفعل.");
+            }
+        }
+
         // ══════════════════════════════════════════
         //  REGISTER (POST)
         // ══════════════════════════════════════════
@@ -275,7 +290,18 @@ namespace ShefaaHealthCare.Controllers
                 // إرجاع أخطاء الـ Identity (مثل باسوورد ضعيف أو إيميل مستخدم)
                 foreach (var error in result.Errors)
                 {
-                    ModelState.AddModelError(string.Empty, error.Description);
+                    string arabicError = error.Code switch
+                    {
+                        "DuplicateUserName" => $"البريد الإلكتروني '{model.Email}' مسجل مسبقاً.",
+                        "DuplicateEmail" => $"البريد الإلكتروني '{model.Email}' مسجل مسبقاً.",
+                        "PasswordTooShort" => "كلمة المرور قصيرة جداً (الحد الأدنى 6 أحرف).",
+                        "PasswordRequiresNonAlphanumeric" => "كلمة المرور يجب أن تحتوي على رمز خاص واحد على الأقل (مثل @، #، $).",
+                        "PasswordRequiresDigit" => "كلمة المرور يجب أن تحتوي على رقم واحد على الأقل.",
+                        "PasswordRequiresLower" => "كلمة المرور يجب أن تحتوي على حرف صغير واحد على الأقل.",
+                        "PasswordRequiresUpper" => "كلمة المرور يجب أن تحتوي على حرف كبير واحد على الأقل.",
+                        _ => error.Description
+                    };
+                    ModelState.AddModelError(string.Empty, arabicError);
                 }
             }
             catch (Exception)
@@ -297,6 +323,101 @@ namespace ShefaaHealthCare.Controllers
 
             var fallbackSpecs = await _unitOfWork.Repository<Specialization>().GetAllAsync();
             ViewBag.Specializations = new SelectList(fallbackSpecs, "Id", "Name");
+            return View(model);
+        }
+
+        // ══════════════════════════════════════════
+        //  FORGOT PASSWORD
+        // ══════════════════════════════════════════
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [AllowAnonymous]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user == null || user.PhoneNumber != model.PhoneNumber)
+            {
+                // لا نكشف عما إذا كان الحساب غير موجود أصلًا أو أن الهاتف خاطئ لدواعي الأمان
+                ModelState.AddModelError(string.Empty, "البيانات المدخلة غير صحيحة أو لا تتطابق مع أي حساب لدينا.");
+                return View(model);
+            }
+
+            // توليد رمز إعادة تعيين كلمة المرور المخفي (Token)
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+            // توجيه المستخدم لصفحة إعادة التعيين مع تمرير التوكن والإيميل
+            return RedirectToAction(nameof(ResetPassword), new { email = user.Email, token });
+        }
+
+        // ══════════════════════════════════════════
+        //  RESET PASSWORD
+        // ══════════════════════════════════════════
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult ResetPassword(string email, string token)
+        {
+            if (email == null || token == null)
+            {
+                return RedirectToAction(nameof(Login));
+            }
+
+            var model = new ResetPasswordViewModel
+            {
+                Email = email,
+                Token = token
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [AllowAnonymous]
+        public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user == null)
+            {
+                return RedirectToAction(nameof(Login));
+            }
+
+            var result = await _userManager.ResetPasswordAsync(user, model.Token, model.NewPassword);
+            if (result.Succeeded)
+            {
+                TempData["SuccessMessage"] = "تم إعادة تعيين كلمة المرور بنجاح. يمكنك الآن تسجيل الدخول.";
+                return RedirectToAction(nameof(Login));
+            }
+
+            foreach (var error in result.Errors)
+            {
+                string arabicError = error.Code switch
+                {
+                    "InvalidToken" => "رابط أو جلسة إعادة التعيين منتهية الصلاحية. يرجى المحاولة مرة أخرى.",
+                    "PasswordTooShort" => "كلمة المرور قصيرة جداً (الحد الأدنى 6 أحرف).",
+                    "PasswordRequiresNonAlphanumeric" => "كلمة المرور يجب أن تحتوي على رمز خاص واحد على الأقل (مثل @، #، $).",
+                    "PasswordRequiresDigit" => "كلمة المرور يجب أن تحتوي على رقم واحد على الأقل.",
+                    "PasswordRequiresLower" => "كلمة المرور يجب أن تحتوي على حرف صغير واحد على الأقل.",
+                    "PasswordRequiresUpper" => "كلمة المرور يجب أن تحتوي على حرف كبير واحد على الأقل.",
+                    _ => error.Description
+                };
+                ModelState.AddModelError(string.Empty, arabicError);
+            }
+
             return View(model);
         }
 
