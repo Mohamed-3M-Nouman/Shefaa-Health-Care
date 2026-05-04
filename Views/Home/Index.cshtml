@@ -5,8 +5,8 @@
 <!-- ══════════════════════════════════════════ -->
 <!--  HERO SECTION                              -->
 <!-- ══════════════════════════════════════════ -->
-<section class="hero-section bg-success bg-opacity-10">
-    <div class="container">
+<section id="heroSection" class="hero-section bg-success bg-opacity-10 position-relative overflow-hidden">
+    <div class="container position-relative">
         <div class="row align-items-center g-5">
             <!-- Text Side -->
             <div class="col-lg-6" data-aos="fade-up">
@@ -25,31 +25,31 @@
                     مع ملف طبي موحد وفرز ذكي بالذكاء الاصطناعي.
                 </p>
 
-                <!-- Search Bar (Hook) -->
-                @if (User.Identity != null && User.Identity.IsAuthenticated)
-                {
-                    <form asp-controller="Doctor" asp-action="Index" method="get" class="hero-search mb-4">
-                        <div class="input-group input-group-lg">
-                            <button class="btn btn-success px-4" type="submit">
-                                <i class="bi bi-search me-1"></i>ابحث
-                            </button>
-                            <input type="text" class="form-control shadow-none" name="search"
-                                   placeholder="ابحث عن طبيب أو تخصص..." aria-label="بحث" />
-                        </div>
-                    </form>
-                }
-                else
-                {
-                    <form asp-controller="Account" asp-action="Login" method="get" class="hero-search mb-4">
-                        <div class="input-group input-group-lg">
-                            <a class="btn btn-success px-4" asp-controller="Account" asp-action="Login">
-                                <i class="bi bi-search me-1"></i>ابحث
-                            </a>
-                            <input type="text" class="form-control shadow-none"
-                                   placeholder="ابحث عن طبيب أو تخصص..." aria-label="بحث" />
-                        </div>
-                    </form>
-                }
+                <!-- CTA Buttons -->
+                <div class="d-flex flex-wrap gap-3 mb-4" data-aos="fade-up" data-aos-delay="100">
+                    @if (User.Identity != null && User.Identity.IsAuthenticated)
+                    {
+                        <a id="heroFindDoctor" class="btn btn-success btn-lg rounded-pill px-4 shadow-sm"
+                           asp-controller="Doctor" asp-action="Index">
+                            <i class="bi bi-search-heart me-2"></i>ابحث عن طبيب
+                        </a>
+                        <a id="heroAppointments" class="btn btn-outline-success btn-lg rounded-pill px-4"
+                           href="#">
+                            <i class="bi bi-calendar2-check me-2"></i>مواعيدي
+                        </a>
+                    }
+                    else
+                    {
+                        <a id="heroRegister" class="btn btn-success btn-lg rounded-pill px-4 shadow-sm"
+                           asp-controller="Account" asp-action="Register">
+                            <i class="bi bi-person-plus me-2"></i>سجّل مجاناً
+                        </a>
+                        <a id="heroLearnMore" class="btn btn-outline-success btn-lg rounded-pill px-4"
+                           href="#featuresSection">
+                            <i class="bi bi-info-circle me-2"></i>اعرف المزيد
+                        </a>
+                    }
+                </div>
 
                 <!-- Stats -->
                 <div class="d-flex gap-4 flex-wrap" data-aos="fade-up" data-aos-delay="200">
@@ -83,9 +83,38 @@
 </section>
 
 <!-- ══════════════════════════════════════════ -->
-<!--  FEATURES SECTION                          -->
+<!--  SEARCH BAR SECTION                        -->
 <!-- ══════════════════════════════════════════ -->
-<section class="py-5">
+<section id="searchSection" class="py-4 bg-white shadow-sm">
+    <div class="container" data-aos="fade-up">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-md-10">
+                <form asp-controller="Doctor" asp-action="Index" method="get" class="hero-search">
+                    <div class="input-group input-group-lg">
+                        <button id="searchBtn" class="btn btn-success px-4 rounded-end-pill" type="submit">
+                            <i class="bi bi-search me-1"></i>ابحث
+                        </button>
+                        <input id="searchInput" type="text" class="form-control shadow-none rounded-start-pill" name="search"
+                               placeholder="ابحث عن طبيب بالاسم أو التخصص..." aria-label="بحث عن طبيب" />
+                    </div>
+                    <div class="d-flex flex-wrap gap-2 mt-3 justify-content-center">
+                        <span class="text-muted small ms-1">بحث شائع:</span>
+                        <a href="@Url.Action("Index", "Doctor", new { search = "قلب" })" class="badge bg-success bg-opacity-10 text-success text-decoration-none rounded-pill px-3 py-2">قلب</a>
+                        <a href="@Url.Action("Index", "Doctor", new { search = "عظام" })" class="badge bg-success bg-opacity-10 text-success text-decoration-none rounded-pill px-3 py-2">عظام</a>
+                        <a href="@Url.Action("Index", "Doctor", new { search = "جلدية" })" class="badge bg-success bg-opacity-10 text-success text-decoration-none rounded-pill px-3 py-2">جلدية</a>
+                        <a href="@Url.Action("Index", "Doctor", new { search = "اسنان" })" class="badge bg-success bg-opacity-10 text-success text-decoration-none rounded-pill px-3 py-2">أسنان</a>
+                        <a href="@Url.Action("Index", "Doctor", new { search = "باطنة" })" class="badge bg-success bg-opacity-10 text-success text-decoration-none rounded-pill px-3 py-2">باطنة</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════ -->
+<!--  FEATURES SECTION (4 Cards)                -->
+<!-- ══════════════════════════════════════════ -->
+<section id="featuresSection" class="py-5">
     <div class="container">
         <!-- Section Header -->
         <div class="text-center mb-5" data-aos="fade-up">
@@ -94,10 +123,10 @@
             <p class="text-muted fs-5">نقدم لك خدمات صحية مبتكرة ومتطورة</p>
         </div>
 
-        <!-- Feature Cards -->
+        <!-- 4 Feature Cards -->
         <div class="row g-4">
             <!-- Feature 1: AI Triage -->
-            <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="100">
                 <div class="card feature-card rounded-4 shadow-sm h-100 text-center p-4">
                     <div class="card-body">
                         <div class="feature-icon bg-success bg-opacity-10 text-success mb-3">
@@ -113,7 +142,7 @@
             </div>
 
             <!-- Feature 2: Unified Medical File -->
-            <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="200">
                 <div class="card feature-card rounded-4 shadow-sm h-100 text-center p-4">
                     <div class="card-body">
                         <div class="feature-icon bg-success bg-opacity-10 text-success mb-3">
@@ -129,7 +158,7 @@
             </div>
 
             <!-- Feature 3: Appointment Booking -->
-            <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
+            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="300">
                 <div class="card feature-card rounded-4 shadow-sm h-100 text-center p-4">
                     <div class="card-body">
                         <div class="feature-icon bg-success bg-opacity-10 text-success mb-3">
@@ -143,6 +172,22 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Feature 4: Security & Privacy -->
+            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="400">
+                <div class="card feature-card rounded-4 shadow-sm h-100 text-center p-4">
+                    <div class="card-body">
+                        <div class="feature-icon bg-success bg-opacity-10 text-success mb-3">
+                            <i class="bi bi-shield-lock"></i>
+                        </div>
+                        <h5 class="card-title fw-bold mb-3">أمان وخصوصية تامة</h5>
+                        <p class="card-text text-muted">
+                            بياناتك الطبية مشفرة ومحمية بأعلى معايير
+                            الأمان المتوافقة مع HIPAA العالمية.
+                        </p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </section>
@@ -152,7 +197,7 @@
 <!-- ══════════════════════════════════════════ -->
 @if (User.Identity == null || !User.Identity.IsAuthenticated)
 {
-    <section class="py-5 bg-white">
+    <section id="howItWorks" class="py-5 bg-white">
         <div class="container">
             <div class="text-center mb-5" data-aos="fade-up">
                 <span class="badge bg-success bg-opacity-10 text-success rounded-4 px-3 py-2 mb-3">كيف يعمل</span>
@@ -161,24 +206,21 @@
 
             <div class="row g-4 text-center">
                 <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
-                    <div class="rounded-circle bg-success bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-3"
-                         style="width:80px;height:80px">
+                    <div class="step-circle bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3">
                         <span class="fs-2 fw-bold text-success">١</span>
                     </div>
                     <h5 class="fw-bold">سجّل حسابك</h5>
                     <p class="text-muted">أنشئ حسابك كمريض أو طبيب في دقيقة واحدة</p>
                 </div>
                 <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
-                    <div class="rounded-circle bg-success bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-3"
-                         style="width:80px;height:80px">
+                    <div class="step-circle bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3">
                         <span class="fs-2 fw-bold text-success">٢</span>
                     </div>
                     <h5 class="fw-bold">اوصف حالتك</h5>
                     <p class="text-muted">أدخل أعراضك ودع الذكاء الاصطناعي يرشدك</p>
                 </div>
                 <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
-                    <div class="rounded-circle bg-success bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-3"
-                         style="width:80px;height:80px">
+                    <div class="step-circle bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3">
                         <span class="fs-2 fw-bold text-success">٣</span>
                     </div>
                     <h5 class="fw-bold">احجز موعدك</h5>
@@ -194,7 +236,7 @@
 <!-- ══════════════════════════════════════════ -->
 @if (User.Identity == null || !User.Identity.IsAuthenticated)
 {
-    <section class="py-5">
+    <section id="doctorCta" class="py-5">
         <div class="container" data-aos="fade-up">
             <div class="doctor-cta text-white rounded-5 p-5">
                 <div class="row align-items-center">
@@ -208,7 +250,7 @@
                         </p>
                     </div>
                     <div class="col-lg-4 text-lg-end">
-                        <a class="btn btn-light text-success btn-lg rounded-4 px-4 fw-bold shadow-sm"
+                        <a id="ctaRegisterDoctor" class="btn btn-light text-success btn-lg rounded-4 px-4 fw-bold shadow-sm"
                            asp-controller="Account" asp-action="Register">
                             <i class="bi bi-person-plus me-1"></i>سجل كطبيب الآن
                         </a>

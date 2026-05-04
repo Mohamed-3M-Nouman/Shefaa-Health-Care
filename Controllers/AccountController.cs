@@ -177,6 +177,8 @@ namespace ShefaaHealthCare.Controllers
             }
 
             // 3. حل كارثة تسريب البيانات باستخدام Transaction
+            // قائمة لتتبع المسارات الفعلية للملفات المرفوعة لإتاحة حذفها عند الفشل
+            var uploadedPhysicalPaths = new List<string>();
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
@@ -217,12 +219,21 @@ namespace ShefaaHealthCare.Controllers
                     }
                     else if (model.UserType == "Doctor")
                     {
-                        string? syndicatePath = model.SyndicateIdCard != null
-                            ? await SaveFileAsync(model.SyndicateIdCard, "documents")
-                            : null;
-                        string? certificatePath = model.Certificate != null
-                            ? await SaveFileAsync(model.Certificate, "documents")
-                            : null;
+                        string? syndicatePath = null;
+                        if (model.SyndicateIdCard != null)
+                        {
+                            var (webPath, physicalPath) = await SaveFileAsync(model.SyndicateIdCard, "documents");
+                            syndicatePath = webPath;
+                            uploadedPhysicalPaths.Add(physicalPath);
+                        }
+
+                        string? certificatePath = null;
+                        if (model.Certificate != null)
+                        {
+                            var (webPath, physicalPath) = await SaveFileAsync(model.Certificate, "documents");
+                            certificatePath = webPath;
+                            uploadedPhysicalPaths.Add(physicalPath);
+                        }
 
                         var doctor = new Doctor
                         {
@@ -271,6 +282,16 @@ namespace ShefaaHealthCare.Controllers
             {
                 // التراجع عن أي شيء تم حفظه في الداتا بيز بسبب ظهور Error
                 await transaction.RollbackAsync();
+
+                // حذف الملفات اليتيمة من الـ File System لمنع استهلاك المساحة
+                foreach (var physicalPath in uploadedPhysicalPaths)
+                {
+                    if (System.IO.File.Exists(physicalPath))
+                    {
+                        System.IO.File.Delete(physicalPath);
+                    }
+                }
+
                 ModelState.AddModelError(string.Empty, "حدث خطأ أثناء إنشاء الحساب. تأكد من إدخال كافة البيانات بشكل صحيح.");
             }
 
@@ -295,20 +316,26 @@ namespace ShefaaHealthCare.Controllers
         //  HELPERS
         // ══════════════════════════════════════════
 
-        private async Task<string> SaveFileAsync(IFormFile file, string subfolder)
+        /// <summary>
+        /// يحفظ الملف على القرص ويُعيد مساراً مزدوجاً:
+        /// - webPath   : المسار النسبي للاستخدام في قاعدة البيانات  (مثال: /uploads/documents/guid_file.pdf)
+        /// - physicalPath : المسار الفعلي الكامل على الـ File System لإتاحة الحذف عند الحاجة
+        /// </summary>
+        private async Task<(string webPath, string physicalPath)> SaveFileAsync(IFormFile file, string subfolder)
         {
             var uploadsDir = Path.Combine(_env.WebRootPath, "uploads", subfolder);
             Directory.CreateDirectory(uploadsDir);
 
             var uniqueName = $"{Guid.NewGuid()}_{file.FileName}";
-            var filePath = Path.Combine(uploadsDir, uniqueName);
+            var physicalPath = Path.Combine(uploadsDir, uniqueName);
 
-            using (var stream = new FileStream(filePath, FileMode.Create))
+            using (var stream = new FileStream(physicalPath, FileMode.Create))
             {
                 await file.CopyToAsync(stream);
             }
 
-            return $"/uploads/{subfolder}/{uniqueName}";
+            var webPath = $"/uploads/{subfolder}/{uniqueName}";
+            return (webPath, physicalPath);
         }
     }
 }
