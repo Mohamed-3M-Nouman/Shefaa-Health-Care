@@ -486,3 +486,5 @@ $RECYCLE.BIN/
 */wwwroot/uploads
 
 *.vscode
+
+*.pdf
