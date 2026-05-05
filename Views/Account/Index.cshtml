@@ -1,0 +1,111 @@
+@model ShefaaHealthCare.Models.ViewModels.AccountViewModel
+
+@{
+    ViewData["Title"] = "حسابي";
+}
+
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10 col-xl-8">
+                <div class="card border-0 shadow-sm rounded-5 overflow-hidden">
+                    <div class="bg-success text-white p-4 p-md-5 text-center">
+                        <div class="mb-3">
+                            <i class="bi bi-person-circle" style="font-size:4rem"></i>
+                        </div>
+                        <h1 class="h3 fw-bold mb-2">@Model.FullName</h1>
+                        <p class="mb-0 opacity-75">صفحة حساب المستخدم</p>
+                    </div>
+
+                    <div class="card-body p-4 p-md-5">
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <div class="p-3 bg-light rounded-4 h-100">
+                                    <small class="text-muted d-block mb-1">البريد الإلكتروني</small>
+                                    <div class="fw-semibold">@Model.Email</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="p-3 bg-light rounded-4 h-100">
+                                    <small class="text-muted d-block mb-1">رقم الهاتف</small>
+                                    <div class="fw-semibold">@(string.IsNullOrWhiteSpace(Model.PhoneNumber) ? "غير متوفر" : Model.PhoneNumber)</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="p-3 bg-light rounded-4 h-100">
+                                    <small class="text-muted d-block mb-1">نوع الحساب</small>
+                                    <div class="fw-semibold">@Model.UserType</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="p-3 bg-light rounded-4 h-100">
+                                    <small class="text-muted d-block mb-1">تاريخ الإنشاء</small>
+                                    <div class="fw-semibold">@Model.CreatedAt.ToString("yyyy/MM/dd")</div>
+                                </div>
+                            </div>
+
+                            @if (Model.UserType == "Patient")
+                            {
+                                <div class="col-md-6">
+                                    <div class="p-3 bg-light rounded-4 h-100">
+                                        <small class="text-muted d-block mb-1">تاريخ الميلاد</small>
+                                        <div class="fw-semibold">@(Model.DateOfBirth?.ToString("yyyy/MM/dd") ?? "غير متوفر")</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="p-3 bg-light rounded-4 h-100">
+                                        <small class="text-muted d-block mb-1">الجنس</small>
+                                        <div class="fw-semibold">@(string.IsNullOrWhiteSpace(Model.Gender) ? "غير متوفر" : Model.Gender)</div>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="p-3 bg-light rounded-4 h-100">
+                                        <small class="text-muted d-block mb-1">فصيلة الدم</small>
+                                        <div class="fw-semibold">@(string.IsNullOrWhiteSpace(Model.BloodType) ? "غير متوفر" : Model.BloodType)</div>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="p-3 bg-light rounded-4 h-100">
+                                        <small class="text-muted d-block mb-1">الأمراض المزمنة</small>
+                                        <div class="fw-semibold">@(string.IsNullOrWhiteSpace(Model.ChronicDiseases) ? "لا يوجد" : Model.ChronicDiseases)</div>
+                                    </div>
+                                </div>
+                            }
+
+                            @if (Model.UserType == "Doctor")
+                            {
+                                <div class="col-md-6">
+                                    <div class="p-3 bg-light rounded-4 h-100">
+                                        <small class="text-muted d-block mb-1">التخصص</small>
+                                        <div class="fw-semibold">@(string.IsNullOrWhiteSpace(Model.SpecializationName) ? "غير متوفر" : Model.SpecializationName)</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="p-3 bg-light rounded-4 h-100">
+                                        <small class="text-muted d-block mb-1">رسوم الاستشارة</small>
+                                        <div class="fw-semibold">@(Model.ConsultationFee?.ToString("0.##") ?? "0")</div>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="p-3 bg-light rounded-4 h-100">
+                                        <small class="text-muted d-block mb-1">حالة التحقق</small>
+                                        <div class="fw-semibold">@(Model.IsVerified ? "متحقق" : "قيد المراجعة")</div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        <div class="d-flex flex-wrap gap-2 mt-4">
+                            <a asp-controller="Home" asp-action="Index" class="btn btn-outline-success rounded-4 px-4">
+                                <i class="bi bi-house-heart me-1"></i>العودة للرئيسية
+                            </a>
+                            <a asp-controller="Doctor" asp-action="Index" class="btn btn-success rounded-4 px-4">
+                                <i class="bi bi-search me-1"></i>ابحث عن طبيب
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

@@ -1,31 +1,220 @@
+/* ══════════════════════════════════════════
+   Shefaa HealthCare - Global Styles
+   ══════════════════════════════════════════ */
+
+:root {
+    --shefaa-green: #198754;
+    --shefaa-green-dark: #146c43;
+    --shefaa-green-light: #d1e7dd;
+    --shefaa-bg: #f8faf9;
+    --shefaa-footer-bg: #111827;
+}
+
+* {
+    font-family: 'Tajawal', sans-serif;
+}
+
 html {
-  font-size: 14px;
+    font-size: 14px;
+    position: relative;
+    min-height: 100%;
+    scroll-behavior: smooth;
 }
 
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
+    html {
+        font-size: 16px;
+    }
 }
 
 body {
-  margin-bottom: 60px;
+    background-color: var(--shefaa-bg);
+    margin-bottom: 0;
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
+/* ── Focus States ── */
+.btn:focus,
+.btn:active:focus,
+.btn-link.nav-link:focus,
+.form-control:focus,
+.form-check-input:focus {
+    box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.2);
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
+/* ── Navbar ── */
+.navbar-brand img {
+    height: 40px;
+    transition: transform 0.2s;
+}
+
+.navbar-brand img:hover {
+    transform: scale(1.05);
+}
+
+.navbar .nav-link {
+    font-weight: 500;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    border-radius: 0.5rem;
+    transition: color 0.2s, background-color 0.2s;
+}
+
+.navbar .nav-link:hover {
+    color: var(--shefaa-green) !important;
+    background-color: rgba(25, 135, 84, 0.06);
+}
+
+.navbar .dropdown-item {
+    border-radius: 0.375rem;
+    transition: background-color 0.15s;
+}
+
+.navbar .dropdown-item:hover {
+    background-color: rgba(25, 135, 84, 0.08);
+}
+
+/* ── Auth Buttons (Navbar) ── */
+.navbar .btn-outline-success,
+.navbar .btn-success {
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.navbar .btn-outline-success:hover,
+.navbar .btn-success:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(25, 135, 84, 0.2);
+}
+
+/* ── Hero ── */
+.hero-section {
+    min-height: 85vh;
+    display: flex;
+    align-items: center;
+}
+
+.hero-search .form-control {
+    border-radius: 1.25rem 0 0 1.25rem !important;
+    border: 2px solid #dee2e6;
+    padding: 0.85rem 1.25rem;
+    font-size: 1.05rem;
+    transition: border-color 0.2s;
+}
+
+.hero-search .form-control:focus {
+    border-color: var(--shefaa-green);
+}
+
+.hero-search .btn {
+    border-radius: 0 1.25rem 1.25rem 0 !important;
+    padding: 0.85rem 1.75rem;
+    font-weight: 600;
+}
+
+/* ── Feature Cards ── */
+.feature-card {
+    transition: transform 0.3s, box-shadow 0.3s;
+    border: none;
+}
+
+.feature-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 30px rgba(25, 135, 84, 0.12) !important;
+}
+
+.feature-icon {
+    width: 70px;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    border-radius: 1rem;
+    margin: 0 auto;
+}
+
+/* ── Doctor CTA ── */
+.doctor-cta {
+    background: linear-gradient(135deg, var(--shefaa-green), var(--shefaa-green-dark));
+}
+
+.doctor-cta .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* ── Footer ── */
+.site-footer {
+    background: var(--shefaa-footer-bg);
+}
+
+.site-footer a {
+    transition: color 0.2s, transform 0.2s;
+}
+
+.site-footer a:hover {
+    color: #4ade80 !important;
+}
+
+.site-footer .btn-outline-light {
+    border-color: rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.6);
+    transition: all 0.25s;
+}
+
+.site-footer .btn-outline-light:hover {
+    background-color: var(--shefaa-green);
+    border-color: var(--shefaa-green);
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+/* ── AOS Overrides ── */
+[data-aos] {
+    transition-timing-function: cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* ── Floating Placeholder RTL ── */
+.form-floating > .form-control-plaintext::placeholder,
+.form-floating > .form-control::placeholder {
+    color: var(--bs-secondary-color);
+    text-align: end;
+}
+
+.form-floating > .form-control-plaintext:focus::placeholder,
+.form-floating > .form-control:focus::placeholder {
+    text-align: start;
+}
+
+/* ── How It Works Steps ── */
+.step-circle {
+    width: 80px;
+    height: 80px;
+}
+
+/* ── Search Section Pills ── */
+#searchSection .hero-search .form-control {
+    border-radius: 0 1.5rem 1.5rem 0 !important;
+    border: 2px solid #dee2e6;
+    padding: 0.85rem 1.25rem;
+    font-size: 1.05rem;
+    transition: border-color 0.2s;
+}
+
+#searchSection .hero-search .form-control:focus {
+    border-color: var(--shefaa-green);
+}
+
+#searchSection .hero-search .btn {
+    border-radius: 1.5rem 0 0 1.5rem !important;
+    padding: 0.85rem 1.75rem;
+    font-weight: 600;
+}
+
+#searchSection .badge {
+    transition: background-color 0.2s, transform 0.15s;
+}
+
+#searchSection .badge:hover {
+    background-color: rgba(25, 135, 84, 0.2) !important;
+    transform: scale(1.05);
 }

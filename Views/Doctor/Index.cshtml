@@ -1,0 +1,153 @@
+@model IEnumerable<ShefaaHealthCare.Models.Doctor>
+@{
+    ViewData["Title"] = "دليل الأطباء";
+    var specializations = ViewBag.Specializations as IEnumerable<ShefaaHealthCare.Models.Specialization>;
+    var searchQuery = ViewBag.SearchQuery as string;
+    var selectedSpec = ViewBag.SelectedSpecialization as int?;
+    var currentPage = ViewBag.CurrentPage as int? ?? 1;
+    var totalPages = ViewBag.TotalPages as int? ?? 1;
+}
+
+<div class="bg-success bg-opacity-10 py-4 border-bottom">
+    <div class="container">
+        <h2 class="fw-bold text-dark mb-0">ابحث عن طبيبك</h2>
+    </div>
+</div>
+
+<div class="container py-5">
+    <!-- Filters Bar -->
+    <div class="card border-0 shadow-sm rounded-4 mb-5 p-3">
+        <form method="get" asp-controller="Doctor" asp-action="Index" class="row g-3 align-items-center">
+            <div class="col-md-5">
+                <input type="text" name="searchQuery" value="@searchQuery" class="form-control form-control-lg bg-light border-0" placeholder="ابحث بالاسم، التخصص، أو رقم الهاتف...">
+            </div>
+            <div class="col-md-4">
+                <select id="specializationSelect" name="specializationId" class="form-select form-select-lg bg-light border-0">
+                    <option value="">كل التخصصات</option>
+                    @if (specializations != null)
+                    {
+                        foreach (var spec in specializations)
+                        {
+                            if (selectedSpec.HasValue && spec.Id == selectedSpec.Value)
+                            {
+                                <option value="@spec.Id" selected>@spec.Name</option>
+                            }
+                            else
+                            {
+                                <option value="@spec.Id">@spec.Name</option>
+                            }
+                        }
+                    }
+                </select>
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-success btn-lg flex-fill">بحث <i class="bi bi-search"></i></button>
+                <a href="@Url.Action("Index", "Doctor")" class="btn btn-light btn-lg text-muted"><i class="bi bi-arrow-clockwise"></i></a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Doctors Grid -->
+    <div class="row g-4">
+        @if (Model != null && Model.Any())
+        {
+            foreach (var doc in Model)
+            {
+                <div class="col-xl-4 col-lg-4 col-md-6">
+                    <div class="card border-0 shadow-sm rounded-4 h-100">
+                        <div class="card-body text-center p-4">
+                            <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3 w-25 h-auto ratio ratio-1x1" style="max-width: 90px; max-height: 90px;">
+                                <i class="bi bi-person-fill text-success fs-1"></i>
+                            </div>
+                            <h5 class="fw-bold mb-1 doc-name">@doc.FullName</h5>
+                            <p class="text-success small fw-medium mb-3 doc-specialty">استشاري @doc.Specialization?.Name</p>
+                            
+                            <div class="text-warning mb-3">
+                                @{
+                                    int fullStars = (int)Math.Floor(doc.Rating);
+                                    bool hasHalfStar = (doc.Rating - fullStars) >= 0.5m;
+                                    int emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+                                    
+                                    for(int i = 0; i < fullStars; i++) { <i class="bi bi-star-fill"></i> }
+                                    if(hasHalfStar) { <i class="bi bi-star-half"></i> }
+                                    for(int i = 0; i < emptyStars; i++) { <i class="bi bi-star"></i> }
+                                }
+                                <span class="text-muted small ms-1">(@doc.Rating.ToString("0.0"))</span>
+                            </div>
+
+                            <ul class="list-unstyled text-muted small text-start mb-4">
+                                <li class="mb-2"><i class="bi bi-geo-alt me-2 text-success"></i>@(doc.City ?? "غير محدد") - @(doc.ClinicAddress ?? "")</li>
+                                <li class="mb-2"><i class="bi bi-briefcase me-2 text-success"></i>خبرة @doc.ExperienceYears سنة</li>
+                                <li class="mb-2"><i class="bi bi-cash me-2 text-success"></i>سعر الكشف: @doc.ConsultationFee ج.م</li>
+                            </ul>
+                        </div>
+                        <div class="card-footer bg-transparent border-0 p-3 pt-0">
+                            <a asp-controller="Appointment" asp-action="Checkout" asp-route-doctorId="@doc.Id" class="btn btn-outline-success w-100 rounded-pill">احجز موعداً</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <!-- No Results Message -->
+            <div class="col-12 text-center py-5">
+                <i class="bi bi-search text-muted mb-3" style="font-size: 4rem; opacity: 0.3;"></i>
+                <h5 class="text-muted fw-bold">لم يتم العثور على أطباء</h5>
+                <p class="text-muted">حاول تغيير معايير البحث أو تصفح تخصص آخر.</p>
+            </div>
+        }
+    </div>
+
+    <!-- Pagination -->
+    @if (totalPages > 1)
+    {
+        <nav aria-label="Page navigation" class="mt-5">
+            <ul class="pagination justify-content-center">
+                @if (currentPage > 1)
+                {
+                    <li class="page-item">
+                        <a class="page-link text-success" href="@Url.Action("Index", new { searchQuery = searchQuery, specializationId = selectedSpec, page = currentPage - 1 })">السابق</a>
+                    </li>
+                }
+                
+                @for (int i = 1; i <= totalPages; i++)
+                {
+                    <li class="page-item @(i == currentPage ? "active" : "")">
+                        <a class="page-link @(i == currentPage ? "bg-success border-success text-white" : "text-success")" href="@Url.Action("Index", new { searchQuery = searchQuery, specializationId = selectedSpec, page = i })">@i</a>
+                    </li>
+                }
+
+                @if (currentPage < totalPages)
+                {
+                    <li class="page-item">
+                        <a class="page-link text-success" href="@Url.Action("Index", new { searchQuery = searchQuery, specializationId = selectedSpec, page = currentPage + 1 })">التالي</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
+</div>
+
+@section Scripts {
+<script>
+    // Auto-submit form when specialization changes
+    document.getElementById('specializationSelect').addEventListener('change', function() {
+        const form = this.closest('form');
+        if (form) {
+            // Reset page to 1 when changing specialization
+            const pageInput = form.querySelector('input[name="page"]');
+            if (!pageInput) {
+                const hidden = document.createElement('input');
+                hidden.type = 'hidden';
+                hidden.name = 'page';
+                hidden.value = '1';
+                form.appendChild(hidden);
+            } else {
+                pageInput.value = '1';
+            }
+            form.submit();
+        }
+    });
+</script>
+}

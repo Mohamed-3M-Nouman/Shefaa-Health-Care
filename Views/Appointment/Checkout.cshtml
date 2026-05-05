@@ -1,0 +1,456 @@
+@model ShefaaHealthCare.Models.ViewModels.CheckoutViewModel
+@{
+    ViewData["Title"] = "إتمام الحجز";
+}
+
+<div class="bg-success bg-opacity-10 py-4 border-bottom">
+    <style>
+        .horizontal-tabs {
+            display: flex;
+            overflow-x: auto;
+            gap: 10px;
+            padding-bottom: 10px;
+            scrollbar-width: thin;
+        }
+        .horizontal-tabs::-webkit-scrollbar {
+            height: 6px;
+        }
+        .horizontal-tabs::-webkit-scrollbar-thumb {
+            background-color: #198754;
+            border-radius: 10px;
+        }
+        .horizontal-tabs::-webkit-scrollbar-track {
+            background-color: #f8f9fa;
+        }
+        .date-tab-label {
+            min-width: 100px;
+            text-align: center;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+        }
+        .btn-check:checked + .date-tab-label {
+            background-color: #198754;
+            color: #fff;
+            border-color: #198754;
+        }
+    </style>
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-2 small">
+                <li class="breadcrumb-item"><a asp-controller="Doctor" asp-action="Index" class="text-success text-decoration-none">الأطباء</a></li>
+                <li class="breadcrumb-item active">إتمام الحجز</li>
+            </ol>
+        </nav>
+        <!-- Step Indicators -->
+        <div class="d-flex align-items-center gap-2 mt-3" id="stepIndicators">
+            <span class="badge rounded-pill bg-success px-3 py-2 step-badge" data-step="1"><i class="bi bi-calendar-event me-1"></i>تحديد الموعد</span>
+            <i class="bi bi-chevron-left text-muted"></i>
+            <span class="badge rounded-pill bg-light text-muted px-3 py-2 step-badge" data-step="2"><i class="bi bi-clipboard-check me-1"></i>تأكيد ودفع</span>
+        </div>
+    </div>
+</div>
+
+<div class="container py-5">
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show rounded-4 shadow-sm border-0 mb-4" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>@TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <form asp-action="ProcessPayment" method="post" id="checkoutForm">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="DoctorId" />
+        <input type="hidden" asp-for="DoctorName" />
+        <input type="hidden" asp-for="SpecializationName" />
+        <input type="hidden" asp-for="ConsultationFee" />
+        <input type="hidden" asp-for="DoctorCity" />
+        <input type="hidden" asp-for="ClinicAddress" />
+        <input type="hidden" asp-for="DoctorRating" />
+        <input type="hidden" asp-for="DoctorExperience" />
+
+        <!-- ═══════════════ STEP 1 ═══════════════ -->
+        <div class="wizard-step" id="step1">
+            <div class="row g-4">
+                <!-- Right: Doctor + Date + Slots -->
+                <div class="col-lg-7">
+                    <div class="card border-0 shadow-sm rounded-4">
+                        <div class="card-body p-4">
+                            <!-- Doctor Card -->
+                            <div class="d-flex align-items-center gap-3 bg-light rounded-4 p-3 mb-4">
+                                <div class="rounded-circle bg-success bg-opacity-10 d-flex align-items-center justify-content-center" style="width:60px;height:60px;min-width:60px;">
+                                    <i class="bi bi-person-fill text-success fs-3"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h5 class="fw-bold mb-0">@Model.DoctorName</h5>
+                                    <span class="text-success small">@Model.SpecializationName</span>
+                                    <div class="d-flex gap-3 mt-1 small text-muted">
+                                        <span><i class="bi bi-star-fill text-warning me-1"></i>@Model.DoctorRating.ToString("0.0")</span>
+                                        @if (Model.DoctorCity != null) { <span><i class="bi bi-geo-alt me-1"></i>@Model.DoctorCity</span> }
+                                        <span><i class="bi bi-briefcase me-1"></i>@Model.DoctorExperience سنة</span>
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <span class="fw-bold text-success fs-5">@Model.ConsultationFee</span>
+                                    <small class="text-muted d-block">ج.م</small>
+                                </div>
+                            </div>
+
+                            <!-- Date Picker -->
+                            <h6 class="fw-bold mb-3"><i class="bi bi-calendar-event me-2 text-success"></i>اختر التاريخ</h6>
+                            <div class="horizontal-tabs mb-2" id="dateTabsContainer">
+                                @if (Model.AvailableDates != null && Model.AvailableDates.Any())
+                                {
+                                    var culture = new System.Globalization.CultureInfo("ar-EG");
+                                    foreach (var date in Model.AvailableDates)
+                                    {
+                                        string id = "date_" + date.ToString("yyyyMMdd");
+                                        string val = date.ToString("yyyy-MM-dd");
+                                        string dayName = culture.DateTimeFormat.GetDayName(date.DayOfWeek);
+                                        string dayMonth = date.ToString("dd MMMM", culture);
+
+                                        <div>
+                                            <input type="radio" class="btn-check date-radio" name="AppointmentDate" id="@id" value="@val" @(Model.AppointmentDate.Date == date.Date ? "checked" : "")>
+                                            <label class="btn btn-outline-success rounded-4 p-2 date-tab-label" for="@id">
+                                                <span class="d-block fw-bold mb-1">@dayName</span>
+                                                <small>@dayMonth</small>
+                                            </label>
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <div class="text-muted small py-2">لا توجد مواعيد متاحة للطبيب في الـ 30 يوماً القادمة.</div>
+                                }
+                            </div>
+                            <span asp-validation-for="AppointmentDate" class="text-danger small"></span>
+
+                            <!-- Time Slots Container -->
+                            <h6 class="fw-bold mt-4 mb-3"><i class="bi bi-clock me-2 text-success"></i>اختر الوقت المتاح</h6>
+                            <div id="timeSlotsContainer">
+                                <div class="text-center py-4 text-muted">
+                                    <i class="bi bi-calendar3 fs-1 d-block mb-2 opacity-25"></i>
+                                    <span>اختر تاريخاً أولاً لعرض المواعيد المتاحة</span>
+                                </div>
+                            </div>
+                            <input type="hidden" asp-for="AppointmentTime" id="selectedTimeInput" />
+                            <span asp-validation-for="AppointmentTime" class="text-danger small d-block mt-1"></span>
+
+                            <div id="step1Error" class="text-danger small mt-2 d-none"></div>
+
+                            <button type="button" class="btn btn-success btn-lg w-100 rounded-pill mt-4 py-3 fw-bold" onclick="goToStep(2)">
+                                التالي: تأكيد والدفع <i class="bi bi-arrow-left ms-2"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Left: Summary -->
+                <div class="col-lg-5">
+                    <div class="card border-0 shadow-sm rounded-4 sticky-top" style="top:90px;">
+                        <div class="card-body p-4">
+                            <h6 class="fw-bold text-muted mb-3"><i class="bi bi-receipt me-2"></i>ملخص الحجز</h6>
+                            <div class="d-flex justify-content-between py-2 border-bottom"><span class="text-muted">الطبيب</span><span class="fw-bold">@Model.DoctorName</span></div>
+                            <div class="d-flex justify-content-between py-2 border-bottom"><span class="text-muted">التخصص</span><span class="fw-bold">@Model.SpecializationName</span></div>
+                            <div class="d-flex justify-content-between py-2 border-bottom"><span class="text-muted">التاريخ</span><span class="fw-bold" id="summaryDate">—</span></div>
+                            <div class="d-flex justify-content-between py-2 border-bottom"><span class="text-muted">الوقت</span><span class="fw-bold" id="summaryTime">—</span></div>
+                            <hr>
+                            <div class="d-flex justify-content-between py-2"><span class="text-muted">سعر الكشف</span><span class="fw-bold">@Model.ConsultationFee ج.م</span></div>
+                            <div class="d-flex justify-content-between py-2"><span class="text-muted">رسوم الخدمة</span><span class="fw-bold text-success">مجاناً</span></div>
+                            <hr>
+                            <div class="d-flex justify-content-between"><span class="fw-bold fs-5">الإجمالي</span><span class="fw-bold fs-5 text-success">@Model.ConsultationFee ج.م</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════ STEP 2 ═══════════════ -->
+        <div class="wizard-step d-none" id="step2">
+            <div class="row g-4">
+                <!-- Payment Form -->
+                <div class="col-lg-7">
+                    <div class="card border-0 shadow-sm rounded-4">
+                        <div class="card-body p-4">
+                            <!-- Payment Method -->
+                            <h6 class="fw-bold mb-3"><i class="bi bi-wallet2 me-2 text-primary"></i>طريقة الدفع</h6>
+                            <div class="row g-3 mb-4">
+                                <div class="col-6">
+                                    <input type="radio" class="btn-check" name="PaymentMethod" id="payVisa" value="Visa" checked>
+                                    <label class="btn btn-outline-success rounded-4 w-100 p-3 text-start" for="payVisa">
+                                        <i class="bi bi-credit-card-2-front text-primary fs-4 d-block mb-1"></i>
+                                        <span class="fw-bold">Visa / Mastercard</span>
+                                    </label>
+                                </div>
+                                <div class="col-6">
+                                    <input type="radio" class="btn-check" name="PaymentMethod" id="payCash" value="Cash">
+                                    <label class="btn btn-outline-success rounded-4 w-100 p-3 text-start" for="payCash">
+                                        <i class="bi bi-cash-coin text-warning fs-4 d-block mb-1"></i>
+                                        <span class="fw-bold">كاش عند الزيارة</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Visa Fields -->
+                            <div id="visaFields">
+                                <div class="mb-3">
+                                    <label asp-for="CardHolderName" class="form-label fw-medium">اسم حامل البطاقة</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light border-end-0"><i class="bi bi-person"></i></span>
+                                        <input asp-for="CardHolderName" class="form-control form-control-lg border-start-0 bg-light" placeholder="الاسم كما على البطاقة" />
+                                    </div>
+                                    <span asp-validation-for="CardHolderName" class="text-danger small"></span>
+                                </div>
+                                <div class="mb-3">
+                                    <label asp-for="CardNumber" class="form-label fw-medium">رقم البطاقة</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light border-end-0"><i class="bi bi-credit-card"></i></span>
+                                        <input asp-for="CardNumber" id="cardNumberInput" class="form-control form-control-lg border-start-0 bg-light" placeholder="0000 0000 0000 0000" maxlength="19" dir="ltr" />
+                                    </div>
+                                    <span asp-validation-for="CardNumber" class="text-danger small"></span>
+                                </div>
+                                <div class="row g-3 mb-3">
+                                    <div class="col-6">
+                                        <label asp-for="ExpiryDate" class="form-label fw-medium">تاريخ الانتهاء</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-calendar3"></i></span>
+                                            <input asp-for="ExpiryDate" id="expiryInput" class="form-control form-control-lg border-start-0 bg-light" placeholder="MM/YY" maxlength="5" dir="ltr" />
+                                        </div>
+                                        <span asp-validation-for="ExpiryDate" id="expiryError" class="text-danger small"></span>
+                                    </div>
+                                    <div class="col-6">
+                                        <label asp-for="CVV" class="form-label fw-medium">CVV</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-lock"></i></span>
+                                            <input asp-for="CVV" type="password" class="form-control form-control-lg border-start-0 bg-light" placeholder="•••" maxlength="3" dir="ltr" />
+                                        </div>
+                                        <span asp-validation-for="CVV" class="text-danger small"></span>
+                                    </div>
+                                </div>
+                                <div class="alert alert-light border rounded-3 d-flex align-items-center gap-2 py-2">
+                                    <i class="bi bi-shield-fill-check text-success fs-5"></i>
+                                    <small class="text-muted">بياناتك محمية بتشفير SSL. لا يتم تخزين بيانات بطاقتك.</small>
+                                </div>
+                            </div>
+
+                            <!-- Cash Message -->
+                            <div id="cashMessage" class="d-none text-center py-4">
+                                <i class="bi bi-cash-coin text-warning fs-1 d-block mb-2"></i>
+                                <h5 class="fw-bold">الدفع عند الزيارة</h5>
+                                <p class="text-muted">ستدفع <strong class="text-success">@Model.ConsultationFee ج.م</strong> نقداً في العيادة.</p>
+                            </div>
+
+                            <div class="d-flex gap-3 mt-4">
+                                <button type="button" class="btn btn-light btn-lg rounded-pill flex-fill py-3 fw-bold" onclick="goToStep(1)">
+                                    <i class="bi bi-arrow-right me-2"></i>السابق
+                                </button>
+                                <button type="submit" class="btn btn-success btn-lg rounded-pill flex-fill py-3 fw-bold" id="btnSubmit">
+                                    <i class="bi bi-lock-fill me-2"></i><span id="submitText">ادفع @Model.ConsultationFee ج.م وأكّد</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Summary (Step 2) -->
+                <div class="col-lg-5">
+                    <div class="card border-0 shadow-sm rounded-4 sticky-top" style="top:90px;">
+                        <div class="card-body p-4">
+                            <h6 class="fw-bold text-muted mb-3"><i class="bi bi-receipt me-2"></i>تفاصيل الحجز</h6>
+                            <div class="bg-light rounded-4 p-3 mb-3">
+                                <div class="d-flex align-items-center gap-3 mb-2">
+                                    <div class="rounded-circle bg-success bg-opacity-10 d-flex align-items-center justify-content-center" style="width:48px;height:48px;min-width:48px;">
+                                        <i class="bi bi-person-fill text-success fs-4"></i>
+                                    </div>
+                                    <div>
+                                        <span class="fw-bold">@Model.DoctorName</span>
+                                        <small class="text-success d-block">@Model.SpecializationName</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between py-2 border-bottom small"><span class="text-muted"><i class="bi bi-calendar-event me-1"></i>التاريخ</span><span class="fw-bold" id="s2Date">—</span></div>
+                            <div class="d-flex justify-content-between py-2 border-bottom small"><span class="text-muted"><i class="bi bi-clock me-1"></i>الوقت</span><span class="fw-bold" id="s2Time">—</span></div>
+                            @if (Model.DoctorCity != null)
+                            {
+                                <div class="d-flex justify-content-between py-2 border-bottom small"><span class="text-muted"><i class="bi bi-geo-alt me-1"></i>الموقع</span><span class="fw-bold">@Model.DoctorCity</span></div>
+                            }
+                            <hr>
+                            <div class="d-flex justify-content-between"><span class="fw-bold">الإجمالي</span><span class="fw-bold text-success fs-5">@Model.ConsultationFee ج.م</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        var doctorId = @Model.DoctorId;
+
+        // ── Fetch time slots on date change ──
+        document.querySelectorAll('.date-radio').forEach(function(radio) {
+            radio.addEventListener('change', function () {
+                var date = this.value;
+                var container = document.getElementById('timeSlotsContainer');
+                document.getElementById('selectedTimeInput').value = '';
+                document.getElementById('summaryTime').textContent = '—';
+
+                if (!date) { container.innerHTML = '<div class="text-center py-4 text-muted"><i class="bi bi-calendar3 fs-1 d-block mb-2 opacity-25"></i>اختر تاريخاً</div>'; return; }
+
+                // Update summary date
+                var d = new Date(date);
+                document.getElementById('summaryDate').textContent = d.toLocaleDateString('ar-EG', { day: 'numeric', month: 'long', year: 'numeric' });
+
+                container.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-success" role="status"></div><p class="text-muted mt-2 small">جاري تحميل المواعيد...</p></div>';
+
+            fetch('/Appointment/GetAvailableSlots?doctorId=' + doctorId + '&selectedDate=' + date)
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (!data.available || data.slots.length === 0) {
+                        var msg = data.message || 'لا توجد مواعيد متاحة في هذا اليوم.';
+                        container.innerHTML = '<div class="alert alert-warning border-0 rounded-4 text-center py-3 mb-0"><i class="bi bi-exclamation-triangle me-2"></i>' + msg + '</div>';
+                        return;
+                    }
+
+                    var html = '<div class="d-flex flex-wrap gap-2">';
+                    data.slots.forEach(function(slot) {
+                        var parts = slot.split(':');
+                        var h = parseInt(parts[0]), m = parts[1];
+                        var ampm = h >= 12 ? 'م' : 'ص';
+                        var h12 = h % 12 || 12;
+                        var label = h12 + ':' + m + ' ' + ampm;
+                        var id = 'slot_' + slot.replace(':', '');
+
+                        html += '<div>';
+                        html += '<input type="radio" class="btn-check" name="timeSlot" id="' + id + '" value="' + slot + '" autocomplete="off">';
+                        html += '<label class="btn btn-outline-success rounded-pill px-3 py-2" for="' + id + '">' + label + '</label>';
+                        html += '</div>';
+                    });
+                    html += '</div>';
+                    container.innerHTML = html;
+
+                    // Bind click events
+                    container.querySelectorAll('input[name="timeSlot"]').forEach(function(radio) {
+                        radio.addEventListener('change', function () {
+                            document.getElementById('selectedTimeInput').value = this.value;
+                            var p = this.value.split(':');
+                            var hh = parseInt(p[0]), mm = p[1];
+                            var ap = hh >= 12 ? 'م' : 'ص';
+                            var h12 = hh % 12 || 12;
+                            var display = h12 + ':' + mm + ' ' + ap;
+                            document.getElementById('summaryTime').textContent = display;
+                        });
+                    });
+                })
+                .catch(function() {
+                    container.innerHTML = '<div class="alert alert-danger border-0 rounded-4 text-center py-3 mb-0"><i class="bi bi-wifi-off me-2"></i>حدث خطأ. حاول مجدداً.</div>';
+                });
+            });
+        });
+
+        // ── Auto-load slots if date is pre-filled ──
+        window.addEventListener('DOMContentLoaded', function() {
+            var selectedRadio = document.querySelector('.date-radio:checked');
+            if (selectedRadio) selectedRadio.dispatchEvent(new Event('change'));
+        });
+
+        // ── Step Navigation ──
+        function goToStep(step) {
+            if (step === 2) {
+                var dateRadio = document.querySelector('.date-radio:checked');
+                var dateVal = dateRadio ? dateRadio.value : '';
+                var timeVal = document.getElementById('selectedTimeInput').value;
+                var errEl = document.getElementById('step1Error');
+                errEl.classList.add('d-none');
+                if (!dateVal) { errEl.textContent = 'يرجى تحديد تاريخ الموعد.'; errEl.classList.remove('d-none'); return; }
+                if (!timeVal) { errEl.textContent = 'يرجى اختيار وقت الموعد.'; errEl.classList.remove('d-none'); return; }
+
+                document.getElementById('s2Date').textContent = document.getElementById('summaryDate').textContent;
+                document.getElementById('s2Time').textContent = document.getElementById('summaryTime').textContent;
+            }
+
+            document.querySelectorAll('.wizard-step').forEach(function(el) { el.classList.add('d-none'); });
+            document.getElementById('step' + step).classList.remove('d-none');
+
+            document.querySelectorAll('.step-badge').forEach(function(b) {
+                var s = parseInt(b.getAttribute('data-step'));
+                b.classList.toggle('bg-success', s <= step);
+                b.classList.toggle('bg-light', s > step);
+                b.classList.toggle('text-muted', s > step);
+            });
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ── Toggle Visa / Cash ──
+        document.getElementById('payVisa').addEventListener('change', togglePay);
+        document.getElementById('payCash').addEventListener('change', togglePay);
+        function togglePay() {
+            var isVisa = document.getElementById('payVisa').checked;
+            document.getElementById('visaFields').classList.toggle('d-none', !isVisa);
+            document.getElementById('cashMessage').classList.toggle('d-none', isVisa);
+            document.getElementById('submitText').textContent = isVisa ? 'ادفع @Model.ConsultationFee ج.م وأكّد' : 'تأكيد الحجز';
+        }
+
+        // ── Auto-format Card Number: 0000 0000 0000 0000 ──
+        document.getElementById('cardNumberInput').addEventListener('input', function (e) {
+            var val = this.value.replace(/\D/g, '').substring(0, 16);
+            var formatted = val.replace(/(\d{4})(?=\d)/g, '$1 ');
+            this.value = formatted;
+        });
+
+        // ── Auto-format Expiry Date: MM/YY ──
+        document.getElementById('expiryInput').addEventListener('input', function (e) {
+            var val = this.value.replace(/\D/g, '').substring(0, 4);
+            if (val.length >= 3) {
+                this.value = val.substring(0, 2) + '/' + val.substring(2);
+            } else {
+                this.value = val;
+            }
+            validateExpiry();
+        });
+
+        function validateExpiry() {
+            var input = document.getElementById('expiryInput');
+            var error = document.getElementById('expiryError');
+            var val = input.value;
+            
+            if (val.length === 5) {
+                var parts = val.split('/');
+                var month = parseInt(parts[0], 10);
+                var year = parseInt(parts[1], 10) + 2000;
+                
+                var now = new Date();
+                var currentMonth = now.getMonth() + 1;
+                var currentYear = now.getFullYear();
+                
+                if (month < 1 || month > 12) {
+                    error.textContent = "شهر غير صحيح";
+                    return false;
+                }
+                
+                if (year < currentYear || (year === currentYear && month < currentMonth)) {
+                    error.textContent = "البطاقة منتهية الصلاحية";
+                    return false;
+                }
+            }
+            error.textContent = "";
+            return true;
+        }
+
+        // ── Strip spaces from card number before form submit ──
+        document.getElementById('checkoutForm').addEventListener('submit', function (e) {
+            var isVisa = document.getElementById('payVisa').checked;
+            if (isVisa && !validateExpiry()) {
+                e.preventDefault();
+                return false;
+            }
+
+            var cardInput = document.getElementById('cardNumberInput');
+            if (cardInput) cardInput.value = cardInput.value.replace(/\s/g, '');
+        });
+    </script>
+}

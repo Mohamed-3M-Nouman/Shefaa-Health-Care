@@ -1,0 +1,203 @@
+@{
+    ViewData["Title"] = "الممرض الذكي";
+}
+
+@section Styles {
+    <link href="~/css/chat.css" rel="stylesheet" />
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                <!-- Header -->
+                <div class="bg-success bg-gradient p-4 text-white d-flex align-items-center gap-3">
+                    <div class="bg-white bg-opacity-25 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                        <i class="bi bi-robot fs-3"></i>
+                    </div>
+                    <div>
+                        <h5 class="mb-1 fw-bold">الممرض الذكي (AI)</h5>
+                        <small class="text-white-50"><i class="bi bi-circle-fill text-info small me-1"></i>متصل الآن - اطرح أعراضك</small>
+                    </div>
+                </div>
+
+                <!-- Chat Area -->
+                <div class="card-body p-0">
+                    <div id="chatBox" class="chat-container">
+                        <div class="chat-bubble chat-bubble-ai shadow-sm">
+                            مرحباً بك في منصة شفاء! 🩺<br>
+                            أنا الممرض الذكي، تفضل بإخباري بالأعراض التي تشعر بها بالتفصيل وسأقوم بمساعدتك في توجيهك للتخصص الطبي المناسب.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Input Area -->
+                <div class="card-footer bg-white p-4 border-top-0">
+                    <!-- Quick Chips -->
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+                        <span class="badge bg-light text-dark border rounded-pill px-3 py-2 quick-chip" onclick="setQuickMessage('أعاني من صداع نصفي شديد مع غثيان منذ يومين')">
+                            <i class="bi bi-lightning-charge text-warning me-1"></i>صداع نصفي وغثيان
+                        </span>
+                        <span class="badge bg-light text-dark border rounded-pill px-3 py-2 quick-chip" onclick="setQuickMessage('أشعر بألم حاد في المعدة وحموضة مستمرة')">
+                            <i class="bi bi-fire text-danger me-1"></i>ألم في المعدة
+                        </span>
+                        <span class="badge bg-light text-dark border rounded-pill px-3 py-2 quick-chip" onclick="setQuickMessage('أعاني من كحة جافة وارتفاع في درجة الحرارة')">
+                            <i class="bi bi-thermometer-half text-info me-1"></i>كحة وحمى
+                        </span>
+                    </div>
+
+                    <!-- Input Group -->
+                    <div class="input-group input-group-lg shadow-sm rounded-pill overflow-hidden border">
+                        <button class="btn btn-light mic-btn border-0 border-end" type="button" id="micBtn" title="تحدث بالأعراض">
+                            <i class="bi bi-mic-fill fs-5 text-secondary" id="micIcon"></i>
+                        </button>
+                        <input type="text" id="messageInput" class="form-control border-0 shadow-none px-3" placeholder="اكتب أعراضك هنا..." aria-label="أعراضك" autocomplete="off" onkeypress="handleKeyPress(event)">
+                        <button class="btn btn-success px-4" type="button" id="sendBtn" onclick="sendMessage()">
+                            <i class="bi bi-send-fill fs-5" style="transform: scaleX(-1);"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const chatBox = document.getElementById('chatBox');
+        const messageInput = document.getElementById('messageInput');
+        const micBtn = document.getElementById('micBtn');
+        const micIcon = document.getElementById('micIcon');
+
+        // ── Speech Recognition Setup ──
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let recognition = null;
+        
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.lang = 'ar-EG'; 
+            recognition.interimResults = false;
+            
+            recognition.onstart = function() {
+                micBtn.classList.add('recording');
+                micIcon.classList.replace('text-secondary', 'text-white');
+                messageInput.placeholder = "جاري الاستماع... تحدث الآن";
+            };
+
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                messageInput.value = transcript;
+            };
+
+            recognition.onend = function() {
+                micBtn.classList.remove('recording');
+                micIcon.classList.replace('text-white', 'text-secondary');
+                messageInput.placeholder = "اكتب أعراضك هنا...";
+            };
+
+            recognition.onerror = function(event) {
+                console.error('Speech recognition error', event.error);
+                micBtn.classList.remove('recording');
+                micIcon.classList.replace('text-white', 'text-secondary');
+                messageInput.placeholder = "حدث خطأ في الميكروفون. حاول الكتابة.";
+            };
+
+            micBtn.addEventListener('click', () => {
+                if(micBtn.classList.contains('recording')) {
+                    recognition.stop();
+                } else {
+                    recognition.start();
+                }
+            });
+        } else {
+            micBtn.style.display = 'none'; // Hide if browser doesn't support Voice API
+        }
+
+        // ── Chat Logic ──
+        function setQuickMessage(msg) {
+            messageInput.value = msg;
+            sendMessage();
+        }
+
+        function handleKeyPress(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        function appendMessage(text, sender, specialty = null) {
+            const bubble = document.createElement('div');
+            bubble.classList.add('chat-bubble', sender === 'user' ? 'chat-bubble-user' : 'chat-bubble-ai');
+            
+            let contentHtml = `<p class="mb-0">${text}</p>`;
+            
+            // Smart Redirection Button
+            if (specialty) {
+                contentHtml += `
+                    <div class="mt-3 pt-2 border-top border-light">
+                        <a href="/Doctor/Index?search=${encodeURIComponent(specialty)}" class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold">
+                            <i class="bi bi-search me-1"></i> ابحث عن طبيب [${specialty}]
+                        </a>
+                    </div>`;
+            }
+            
+            bubble.innerHTML = contentHtml;
+            chatBox.appendChild(bubble);
+            scrollToBottom();
+        }
+
+        function appendTypingIndicator() {
+            const indicator = document.createElement('div');
+            indicator.id = 'typingIndicator';
+            indicator.classList.add('chat-bubble', 'chat-bubble-ai', 'typing-indicator');
+            indicator.innerHTML = `
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            `;
+            chatBox.appendChild(indicator);
+            scrollToBottom();
+        }
+
+        function removeTypingIndicator() {
+            const indicator = document.getElementById('typingIndicator');
+            if (indicator) {
+                indicator.remove();
+            }
+        }
+
+        function scrollToBottom() {
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const text = messageInput.value.trim();
+            if (!text) return;
+
+            messageInput.value = '';
+            appendMessage(text, 'user');
+            appendTypingIndicator();
+
+            try {
+                const response = await fetch('/Ai/AnalyzeSymptoms', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ symptoms: text })
+                });
+
+                removeTypingIndicator();
+
+                if (response.ok) {
+                    const data = await response.json();
+                    appendMessage(data.advice, 'ai', data.specialty);
+                } else {
+                    appendMessage("عذراً، حدث خطأ أثناء معالجة طلبك. يرجى المحاولة مرة أخرى.", 'ai');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                removeTypingIndicator();
+                appendMessage("عذراً، لا يمكن الاتصال بالخادم حالياً. يرجى التأكد من تشغيل خدمة الذكاء الاصطناعي.", 'ai');
+            }
+        }
+    </script>
+}

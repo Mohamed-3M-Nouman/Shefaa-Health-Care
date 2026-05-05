@@ -1,0 +1,390 @@
+@model ShefaaHealthCare.Models.ViewModels.RegisterViewModel
+@{
+    ViewData["Title"] = "إنشاء حساب";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>شفاء - إنشاء حساب جديد</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet" />
+    <link href="~/css/account.css" rel="stylesheet" />
+</head>
+<body class="account-bg">
+<div class="container">
+<div class="card reg-card">
+    <div class="reg-header">
+        <img src="~/images/logo.png" alt="شفاء" class="auth-logo d-inline-block" onerror="this.classList.add('d-none')" />
+        <h1><i class="bi bi-person-plus-fill me-2"></i>إنشاء حساب جديد</h1>
+        <p>انضم إلى منصة شفاء للرعاية الصحية</p>
+    </div>
+
+    <div class="reg-body bg-white">
+        <div class="stepper" id="stepper">
+            <div class="stepper-dot active" data-step="0"></div>
+            <div class="stepper-dot" data-step="1"></div>
+        </div>
+
+        <div asp-validation-summary="All" class="alert alert-danger rounded-4 small py-2 valsummary" role="alert"></div>
+
+        <form asp-action="Register" asp-controller="Account" method="post" enctype="multipart/form-data" id="regForm">
+
+            <!-- ═══ STEP 1: Base Info ═══ -->
+            <div class="step active" id="step0">
+                <h5 class="fw-bold mb-3 text-center text-success">المعلومات الأساسية</h5>
+
+                <!-- Full Name -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold"><i class="bi bi-person me-1"></i>الاسم الكامل</label>
+                    <input asp-for="FullName" class="form-control" placeholder="أدخل اسمك الكامل" />
+                    <span asp-validation-for="FullName" class="text-danger small"></span>
+                </div>
+
+                <!-- Email -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold"><i class="bi bi-envelope me-1"></i>البريد الإلكتروني</label>
+                    <input asp-for="Email" type="email" class="form-control text-start" placeholder="example@email.com" dir="ltr" />
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+
+                <!-- Password Row -->
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold"><i class="bi bi-lock me-1"></i>كلمة المرور</label>
+                        <input asp-for="Password" type="password" class="form-control text-start" placeholder="••••••" dir="ltr" />
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold"><i class="bi bi-lock-fill me-1"></i>تأكيد كلمة المرور</label>
+                        <input asp-for="ConfirmPassword" type="password" class="form-control text-start" placeholder="••••••" dir="ltr" />
+                        <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <!-- Phone -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold"><i class="bi bi-phone me-1"></i>رقم الهاتف</label>
+                    <input asp-for="PhoneNumber" type="tel" class="form-control text-start" placeholder="01xxxxxxxxx" dir="ltr" />
+                    <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                </div>
+
+                <!-- User Type -->
+                <div class="mb-4">
+                    <label class="form-label fw-bold d-block text-center mb-3">نوع الحساب</label>
+                    <input asp-for="UserType" type="hidden" id="userTypeInput" />
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="user-type-card" data-type="Patient" onclick="selectType('Patient')">
+                                <i class="bi bi-person-heart d-block"></i>
+                                <span class="fw-bold">مريض</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="user-type-card" data-type="Doctor" onclick="selectType('Doctor')">
+                                <i class="bi bi-heart-pulse d-block"></i>
+                                <span class="fw-bold">طبيب</span>
+                            </div>
+                        </div>
+                    </div>
+                    <span asp-validation-for="UserType" id="userTypeError" class="text-danger small"></span>
+                </div>
+
+                <button type="button" class="btn btn-shefaa w-100" onclick="goStep(1)" id="nextBtn">
+                    التالي <i class="bi bi-arrow-left"></i>
+                </button>
+
+                <div class="text-center mt-3">
+                    <span class="text-muted">لديك حساب بالفعل؟</span>
+                    <a asp-action="Login" class="fw-bold text-decoration-none text-success">تسجيل الدخول</a>
+                </div>
+            </div>
+
+            <!-- ═══ STEP 2: Patient Fields ═══ -->
+            <div class="step" id="step1-patient">
+                <h5 class="fw-bold mb-1 text-center text-success">المعلومات الطبية</h5>
+                <p class="text-muted text-center small mb-3">اختياري - يمكنك تخطي هذه الخطوة</p>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold"><i class="bi bi-calendar me-1"></i>تاريخ الميلاد</label>
+                        <input asp-for="DateOfBirth" type="date" class="form-control" />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold"><i class="bi bi-gender-ambiguous me-1"></i>الجنس</label>
+                        <select asp-for="Gender" class="form-select" onchange="validateDropdown(this)">
+                            <option value="" disabled selected>-- اختر الجنس --</option>
+                            <option value="ذكر">ذكر</option>
+                            <option value="أنثى">أنثى</option>
+                        </select>
+                        <div class="invalid-feedback d-block" id="genderError"></div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold"><i class="bi bi-droplet me-1"></i>فصيلة الدم</label>
+                    <select asp-for="BloodType" class="form-select" onchange="validateDropdown(this)">
+                        <option value="" disabled selected>-- اختر فصيلة الدم --</option>
+                        <option>A+</option><option>A-</option>
+                        <option>B+</option><option>B-</option>
+                        <option>AB+</option><option>AB-</option>
+                        <option>O+</option><option>O-</option>
+                    </select>
+                    <div class="invalid-feedback d-block" id="bloodTypeError"></div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-semibold"><i class="bi bi-clipboard2-pulse me-1"></i>الأمراض المزمنة</label>
+                    <textarea asp-for="ChronicDiseases" class="form-control" rows="3" placeholder="مثال: سكري، ضغط دم مرتفع..."></textarea>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-outline-shefaa flex-fill" onclick="goStep(0)">
+                        <i class="bi bi-arrow-right"></i> رجوع
+                    </button>
+                    <button type="submit" class="btn btn-shefaa flex-fill">
+                        <i class="bi bi-check-lg me-1"></i>إنشاء الحساب
+                    </button>
+                </div>
+                <div class="text-center mt-2">
+                    <button type="submit" class="btn btn-link text-muted small text-decoration-none">تخطي وإنشاء الحساب</button>
+                </div>
+            </div>
+
+            <!-- ═══ STEP 2: Doctor Fields ═══ -->
+            <div class="step" id="step1-doctor">
+                <h5 class="fw-bold mb-3 text-center text-success">المعلومات المهنية</h5>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold"><i class="bi bi-award me-1"></i>التخصص</label>
+                        <select asp-for="SpecializationId" class="form-select" asp-items="@(ViewBag.Specializations as SelectList)" onchange="validateDropdown(this)" required>
+                            <option value="" disabled selected>-- اختر التخصص --</option>
+                        </select>
+                        <div class="invalid-feedback d-block" id="specializationError"></div>
+                        <span asp-validation-for="SpecializationId" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold"><i class="bi bi-cash me-1"></i>رسوم الاستشارة (ج.م)</label>
+                        <input asp-for="ConsultationFee" type="number" step="0.01" min="0" class="form-control text-start" placeholder="0.00" dir="ltr" />
+                        <span asp-validation-for="ConsultationFee" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <!-- File Uploads -->
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold"><i class="bi bi-card-image me-1"></i>بطاقة النقابة</label>
+                        <input asp-for="SyndicateIdCard" type="file" class="form-control" accept=".jpg,.jpeg,.png,.pdf" />
+                        <span asp-validation-for="SyndicateIdCard" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold"><i class="bi bi-file-earmark-medical me-1"></i>شهادة التخصص</label>
+                        <input asp-for="Certificate" type="file" class="form-control" accept=".jpg,.jpeg,.png,.pdf" />
+                        <span asp-validation-for="Certificate" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <!-- Schedule -->
+                <h6 class="fw-bold mt-3 mb-2"><i class="bi bi-calendar-week me-1 text-success"></i>جدول العمل الأسبوعي</h6>
+                <p class="text-muted small mb-3">اختر الأيام التي تعمل بها وحدد أوقات الدوام</p>
+
+                @{
+                    string[] dayNames = { "الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت" };
+                }
+
+                @for (int i = 0; i < Model.Schedules.Count; i++)
+                {
+                    <div class="schedule-row" id="scheduleRow_@i">
+                        <input type="hidden" asp-for="Schedules[i].DayOfWeek" />
+                        <div class="form-check form-switch d-flex align-items-center gap-2">
+                            <input class="form-check-input" type="checkbox"
+                                   asp-for="Schedules[i].IsSelected"
+                                   id="scheduleCheck_@i"
+                                   onchange="toggleSchedule(@i)" />
+                            <label class="form-check-label fw-semibold" for="scheduleCheck_@i">
+                                @dayNames[i]
+                            </label>
+                        </div>
+                        <div class="schedule-fields gap-2 flex-wrap" id="scheduleFields_@i">
+                            <div class="flex-fill">
+                                <label class="form-label small mb-1">من</label>
+                                <input asp-for="Schedules[i].StartTime" type="time" class="form-control form-control-sm" />
+                            </div>
+                            <div class="flex-fill">
+                                <label class="form-label small mb-1">إلى</label>
+                                <input asp-for="Schedules[i].EndTime" type="time" class="form-control form-control-sm" />
+                            </div>
+                            <div class="min-w-100px">
+                                <label class="form-label small mb-1">المدة (د)</label>
+                                <input asp-for="Schedules[i].SlotDurationMinutes" type="number" min="5" max="120" class="form-control form-control-sm" />
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <div class="d-flex gap-2 mt-3">
+                    <button type="button" class="btn btn-outline-shefaa flex-fill" onclick="goStep(0)">
+                        <i class="bi bi-arrow-right"></i> رجوع
+                    </button>
+                    <button type="submit" class="btn btn-shefaa flex-fill">
+                        <i class="bi bi-check-lg me-1"></i>إنشاء الحساب
+                    </button>
+                </div>
+            </div>
+
+        </form>
+    </div>
+
+    <div class="card-footer bg-light text-center border-0 py-3">
+        <small class="text-muted">
+            <i class="bi bi-shield-check me-1 text-success"></i>
+            جميع بياناتك محمية ومشفرة بالكامل
+        </small>
+    </div>
+</div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<partial name="_ValidationScriptsPartial" />
+
+<script>
+    let currentStep = 0;
+    let selectedType = '';
+
+    function selectType(type) {
+        selectedType = type;
+        document.getElementById('userTypeInput').value = type;
+        document.getElementById('userTypeError').textContent = '';
+        document.querySelectorAll('.user-type-card').forEach(c => c.classList.remove('selected'));
+        document.querySelector('[data-type="' + type + '"]').classList.add('selected');
+        
+        // Trigger unobtrusive validation for the hidden field if applicable
+        $("#regForm").validate().element("#userTypeInput");
+    }
+
+    function goStep(step) {
+        if (step === 1) {
+            // Validate step 0 fields using jQuery unobtrusive validation
+            let isStepValid = true;
+            $('#step0 input').each(function () {
+                if ($(this).attr('type') !== 'hidden') {
+                    if (!$("#regForm").validate().element($(this))) {
+                        isStepValid = false;
+                    }
+                }
+            });
+
+            if (!selectedType) {
+                document.getElementById('userTypeError').textContent = 'يرجى اختيار نوع الحساب';
+                isStepValid = false;
+            }
+
+            if (!isStepValid) {
+                return; // Stop here if validation fails
+            }
+        }
+
+        document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+        const dots = document.querySelectorAll('.stepper-dot');
+
+        if (step === 0) {
+            document.getElementById('step0').classList.add('active');
+            dots[0].className = 'stepper-dot active';
+            dots[1].className = 'stepper-dot';
+        } else {
+            const target = selectedType === 'Doctor' ? 'step1-doctor' : 'step1-patient';
+            document.getElementById(target).classList.add('active');
+            dots[0].className = 'stepper-dot done';
+            dots[1].className = 'stepper-dot active';
+        }
+        currentStep = step;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function toggleSchedule(i) {
+        const cb = document.getElementById('scheduleCheck_' + i);
+        const fields = document.getElementById('scheduleFields_' + i);
+        const row = document.getElementById('scheduleRow_' + i);
+        if (cb.checked) {
+            fields.classList.add('show');
+            row.classList.add('active-day');
+        } else {
+            fields.classList.remove('show');
+            row.classList.remove('active-day');
+        }
+    }
+
+    function validateDropdown(selectElement) {
+        const errorElement = selectElement.parentElement.querySelector('.invalid-feedback');
+        
+        // If value is empty (placeholder), show error message
+        if (!selectElement.value || selectElement.value.trim() === '') {
+            if (errorElement) {
+                errorElement.textContent = 'يرجى اختيار قيمة من القائمة';
+                selectElement.classList.add('is-invalid');
+            }
+        } else {
+            if (errorElement) {
+                errorElement.textContent = '';
+            }
+            selectElement.classList.remove('is-invalid');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.valsummary').forEach(el => {
+            if (!el.textContent.trim()) el.style.display = 'none';
+        });
+        
+        for (let i = 0; i < 7; i++) toggleSchedule(i);
+        
+        const t = document.getElementById('userTypeInput').value;
+        if (t) selectType(t);
+
+        // Add form submission validation
+        document.getElementById('regForm').addEventListener('submit', function(e) {
+            let isValid = true;
+            const genderSelect = document.querySelector('[name="Gender"]');
+            const bloodTypeSelect = document.querySelector('[name="BloodType"]');
+            const specializationSelect = document.querySelector('[name="SpecializationId"]');
+
+            // Validate Gender (if filled, must be valid)
+            if (genderSelect && genderSelect.value && !genderSelect.value.trim()) {
+                genderSelect.classList.add('is-invalid');
+                const errorEl = document.getElementById('genderError');
+                if (errorEl) errorEl.textContent = 'يرجى اختيار الجنس';
+                isValid = false;
+            }
+
+            // Validate BloodType (if filled, must be valid)
+            if (bloodTypeSelect && bloodTypeSelect.value && !bloodTypeSelect.value.trim()) {
+                bloodTypeSelect.classList.add('is-invalid');
+                const errorEl = document.getElementById('bloodTypeError');
+                if (errorEl) errorEl.textContent = 'يرجى اختيار فصيلة الدم';
+                isValid = false;
+            }
+
+            // Validate Specialization (for doctors, must be valid)
+            if (specializationSelect && selectedType === 'Doctor') {
+                if (!specializationSelect.value || !specializationSelect.value.trim()) {
+                    specializationSelect.classList.add('is-invalid');
+                    const errorEl = document.getElementById('specializationError');
+                    if (errorEl) errorEl.textContent = 'يرجى اختيار التخصص';
+                    isValid = false;
+                }
+            }
+
+            if (!isValid) {
+                e.preventDefault();
+            }
+        });
+    });
+</script>
+</body>
+</html>

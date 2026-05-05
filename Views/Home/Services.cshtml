@@ -1,0 +1,394 @@
+@{
+    ViewData["Title"] = "خدماتنا";
+}
+
+<style>
+    .service-card {
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .service-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(40, 167, 69, 0.1) 0%, transparent 100%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .service-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 1rem 2rem rgba(40, 167, 69, 0.2) !important;
+    }
+
+    .service-card:hover::before {
+        opacity: 1;
+    }
+
+    .service-icon-box {
+        width: 80px;
+        height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 16px;
+        margin-bottom: 1.5rem;
+        position: relative;
+        z-index: 1;
+        background: linear-gradient(135deg, rgba(40, 167, 69, 0.15) 0%, rgba(40, 167, 69, 0.05) 100%);
+        border: 2px solid rgba(40, 167, 69, 0.2);
+    }
+
+    .service-icon-box i {
+        font-size: 2.5rem;
+    }
+
+    .hero-illustration {
+        position: relative;
+    }
+
+    .hero-shape {
+        position: absolute;
+        border-radius: 50%;
+        opacity: 0.1;
+        animation: float 6s ease-in-out infinite;
+    }
+
+    .shape-1 {
+        width: 300px;
+        height: 300px;
+        background: #28a745;
+        top: -100px;
+        right: -100px;
+    }
+
+    .shape-2 {
+        width: 200px;
+        height: 200px;
+        background: #20c997;
+        bottom: -50px;
+        left: -50px;
+        animation-delay: 2s;
+    }
+
+    @@keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(20px); }
+    }
+
+    .services-grid-header {
+        position: relative;
+        margin-bottom: 3rem;
+        text-align: center;
+    }
+
+    .services-grid-header::after {
+        content: '';
+        position: absolute;
+        bottom: -20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px;
+        height: 4px;
+        background: linear-gradient(90deg, transparent, #28a745, transparent);
+        border-radius: 2px;
+    }
+</style>
+
+<!-- ══════════════════════════════════════════ -->
+<!--  HERO SECTION                              -->
+<!-- ══════════════════════════════════════════ -->
+<section class="hero-section bg-success bg-opacity-10 position-relative overflow-hidden py-5">
+    <div class="container position-relative">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6" data-aos="fade-up">
+                <span class="badge bg-success bg-opacity-25 text-success rounded-4 px-3 py-2 mb-3 fs-6">
+                    <i class="bi bi-briefcase-medical me-1"></i>خدماتنا
+                </span>
+                <h1 class="display-4 fw-800 text-dark mb-3 lh-base">
+                    خدمات صحية
+                    <br />
+                    <span class="text-success">متكاملة وموثوقة</span>
+                </h1>
+                <p class="fs-5 text-muted mb-4 lh-lg">
+                    نوفر مجموعة شاملة من الخدمات الصحية الذكية 
+                    التي تساعدك في الحصول على أفضل رعاية طبية.
+                </p>
+                <div class="d-flex gap-3">
+                    <div class="text-center">
+                        <h4 class="text-success fw-bold mb-0">+30</h4>
+                        <small class="text-muted">خدمة متنوعة</small>
+                    </div>
+                    <div class="vr"></div>
+                    <div class="text-center">
+                        <h4 class="text-success fw-bold mb-0">24/7</h4>
+                        <small class="text-muted">دعم مستمر</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 text-center" data-aos="fade-up" data-aos-delay="200">
+                <div class="hero-illustration position-relative">
+                    <div class="hero-shape shape-1"></div>
+                    <div class="hero-shape shape-2"></div>
+                    <div class="bg-white rounded-5 shadow p-5 position-relative" style="z-index: 2;">
+                        <div style="font-size: 120px; color: #28a745; line-height: 1;">
+                            <i class="bi bi-hospital"></i>
+                        </div>
+                        <div class="mt-3">
+                            <span class="badge bg-success bg-opacity-10 text-success rounded-3 px-3 py-2">منصة طبية شاملة</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════ -->
+<!--  SERVICES GRID                             -->
+<!-- ══════════════════════════════════════════ -->
+<section class="py-5">
+    <div class="container">
+        <!-- Section Header -->
+        <div class="services-grid-header mb-5" data-aos="fade-up">
+            <span class="badge bg-success bg-opacity-10 text-success rounded-4 px-3 py-2 mb-3 d-inline-block">الخدمات الرئيسية</span>
+            <h2 class="fw-bold text-dark mt-3 mb-2">ما الذي نقدمه لك</h2>
+            <p class="text-muted fs-5">ستة خدمات متكاملة لتحسين تجربتك الصحية</p>
+        </div>
+
+        <!-- Row 1: Main Services -->
+        <div class="row g-4 mb-5">
+            <!-- Service 1 -->
+            <div class="col-lg-4 col-md-6" data-aos="fade-up">
+                <div class="card service-card border-0 shadow-sm rounded-4 h-100 p-5">
+                    <div class="service-icon-box">
+                        <i class="bi bi-search-heart text-success"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-2">البحث عن الأطباء</h5>
+                    <p class="text-muted small mb-0">
+                        ابحث عن أطباء متخصصين من خلال قاعدة بيانات شاملة، 
+                        وتصفح ملفاتهم الأكاديمية والخبرات والتقييمات.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Service 2 -->
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
+                <div class="card service-card border-0 shadow-sm rounded-4 h-100 p-5">
+                    <div class="service-icon-box">
+                        <i class="bi bi-calendar-check text-success"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-2">حجز المواعيد</h5>
+                    <p class="text-muted small mb-0">
+                        احجز موعداً مع طبيبك المفضل بسهولة وسرعة، 
+                        مع إمكانية اختيار الوقت المناسب لك.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Service 3 -->
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
+                <div class="card service-card border-0 shadow-sm rounded-4 h-100 p-5">
+                    <div class="service-icon-box">
+                        <i class="bi bi-file-earmark-medical text-success"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-2">السجل الطبي الموحد</h5>
+                    <p class="text-muted small mb-0">
+                        احصل على ملف طبي شامل يحتوي على كل تاريخك المرضي 
+                        والتقارير والوصفات في مكان واحد آمن.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Service 4 -->
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="300">
+                <div class="card service-card border-0 shadow-sm rounded-4 h-100 p-5">
+                    <div class="service-icon-box">
+                        <i class="bi bi-robot text-success"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-2">التشخيص الذكي</h5>
+                    <p class="text-muted small mb-0">
+                        استخدم نظامنا الذكي المدعوم بالذكاء الاصطناعي 
+                        لتحليل أعراضك والحصول على تشخيص أولي.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Service 5 -->
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="400">
+                <div class="card service-card border-0 shadow-sm rounded-4 h-100 p-5">
+                    <div class="service-icon-box">
+                        <i class="bi bi-chat-dots text-success"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-2">الاستشارات الطبية</h5>
+                    <p class="text-muted small mb-0">
+                        احصل على استشارات طبية موثوقة من أطباء متخصصين 
+                        بسهولة وسرعة من خلال المنصة.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Service 6 -->
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="500">
+                <div class="card service-card border-0 shadow-sm rounded-4 h-100 p-5">
+                    <div class="service-icon-box">
+                        <i class="bi bi-shield-lock text-success"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-2">الأمان والخصوصية</h5>
+                    <p class="text-muted small mb-0">
+                        بيانات صحتك محمية بأعلى معايير التشفير والأمان 
+                        المتوافقة مع المعايير الدولية.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════ -->
+<!--  BENEFITS & HOW IT WORKS SECTION           -->
+<!-- ══════════════════════════════════════════ -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row g-5">
+            <!-- Benefits Column -->
+            <div class="col-lg-6" data-aos="fade-up">
+                <div class="mb-4">
+                    <span class="badge bg-success bg-opacity-10 text-success rounded-4 px-3 py-2 mb-3 d-inline-block">المميزات</span>
+                    <h3 class="fw-bold text-dark mt-3">
+                        <i class="bi bi-star text-success me-2"></i>لماذا اختيار خدماتنا؟
+                    </h3>
+                </div>
+                <ul class="list-unstyled">
+                    <li class="mb-4 d-flex gap-3">
+                        <div class="flex-shrink-0">
+                            <div class="d-flex align-items-center justify-content-center rounded-circle bg-success bg-opacity-10" style="width: 50px; height: 50px;">
+                                <i class="bi bi-check-circle text-success fs-5"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h6 class="fw-bold text-dark mb-1">أطباء معتمدون</h6>
+                            <p class="text-muted small mb-0">أطباء معتمدون وموثوقون من كل التخصصات الطبية</p>
+                        </div>
+                    </li>
+                    <li class="mb-4 d-flex gap-3">
+                        <div class="flex-shrink-0">
+                            <div class="d-flex align-items-center justify-content-center rounded-circle bg-success bg-opacity-10" style="width: 50px; height: 50px;">
+                                <i class="bi bi-check-circle text-success fs-5"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h6 class="fw-bold text-dark mb-1">سهل الاستخدام</h6>
+                            <p class="text-muted small mb-0">واجهة بسيطة وسهلة الاستخدام لجميع الأعمار</p>
+                        </div>
+                    </li>
+                    <li class="mb-4 d-flex gap-3">
+                        <div class="flex-shrink-0">
+                            <div class="d-flex align-items-center justify-content-center rounded-circle bg-success bg-opacity-10" style="width: 50px; height: 50px;">
+                                <i class="bi bi-check-circle text-success fs-5"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h6 class="fw-bold text-dark mb-1">أمان عالي</h6>
+                            <p class="text-muted small mb-0">حفظ آمن لكل بيانات المريض الطبية والشخصية</p>
+                        </div>
+                    </li>
+                    <li class="mb-4 d-flex gap-3">
+                        <div class="flex-shrink-0">
+                            <div class="d-flex align-items-center justify-content-center rounded-circle bg-success bg-opacity-10" style="width: 50px; height: 50px;">
+                                <i class="bi bi-check-circle text-success fs-5"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h6 class="fw-bold text-dark mb-1">دعم 24/7</h6>
+                            <p class="text-muted small mb-0">خدمة عملاء متاحة على مدار الساعة طوال الأسبوع</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- How It Works Column -->
+            <div class="col-lg-6" data-aos="fade-up" data-aos-delay="100">
+                <div class="mb-4">
+                    <span class="badge bg-success bg-opacity-10 text-success rounded-4 px-3 py-2 mb-3 d-inline-block">الخطوات</span>
+                    <h3 class="fw-bold text-dark mt-3">
+                        <i class="bi bi-lightning-charge text-success me-2"></i>كيفية الاستفادة من الخدمات
+                    </h3>
+                </div>
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <div class="card border-success border-opacity-25 bg-white h-100">
+                            <div class="card-body text-center">
+                                <div class="bg-success text-white rounded-circle p-3 d-inline-flex mb-3" style="width: 60px; height: 60px; align-items: center; justify-content: center; font-size: 1.5rem;">
+                                    <i class="bi bi-pencil-square"></i>
+                                </div>
+                                <h6 class="fw-bold text-dark mb-2">التسجيل</h6>
+                                <p class="text-muted small mb-0">سجل حسابك بسهولة في دقيقة واحدة</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="card border-success border-opacity-25 bg-white h-100">
+                            <div class="card-body text-center">
+                                <div class="bg-success text-white rounded-circle p-3 d-inline-flex mb-3" style="width: 60px; height: 60px; align-items: center; justify-content: center; font-size: 1.5rem;">
+                                    <i class="bi bi-search"></i>
+                                </div>
+                                <h6 class="fw-bold text-dark mb-2">البحث</h6>
+                                <p class="text-muted small mb-0">ابحث عن الطبيب المناسب لتخصصك</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="card border-success border-opacity-25 bg-white h-100">
+                            <div class="card-body text-center">
+                                <div class="bg-success text-white rounded-circle p-3 d-inline-flex mb-3" style="width: 60px; height: 60px; align-items: center; justify-content: center; font-size: 1.5rem;">
+                                    <i class="bi bi-calendar-heart"></i>
+                                </div>
+                                <h6 class="fw-bold text-dark mb-2">الحجز</h6>
+                                <p class="text-muted small mb-0">احجز موعدك في الوقت المناسب</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="card border-success border-opacity-25 bg-white h-100">
+                            <div class="card-body text-center">
+                                <div class="bg-success text-white rounded-circle p-3 d-inline-flex mb-3" style="width: 60px; height: 60px; align-items: center; justify-content: center; font-size: 1.5rem;">
+                                    <i class="bi bi-hand-thumbs-up"></i>
+                                </div>
+                                <h6 class="fw-bold text-dark mb-2">الرعاية</h6>
+                                <p class="text-muted small mb-0">احصل على رعاية طبية متميزة</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════ -->
+<!--  CTA SECTION                               -->
+<!-- ══════════════════════════════════════════ -->
+<section class="py-5 bg-success bg-opacity-10">
+    <div class="container text-center" data-aos="fade-up">
+        <h3 class="fw-bold text-dark mb-3">هل أنت مستعد للبدء؟</h3>
+        <p class="text-muted mb-4">انضم إلى آلاف المرضى الذين يثقون بشفاء</p>
+        @if (User.Identity == null || !User.Identity.IsAuthenticated)
+        {
+            <a class="btn btn-success btn-lg rounded-pill px-5" asp-controller="Account" asp-action="Register">
+                <i class="bi bi-person-plus me-2"></i>سجل مجاناً الآن
+            </a>
+        }
+        else
+        {
+            <a class="btn btn-success btn-lg rounded-pill px-5" asp-controller="Doctor" asp-action="Index">
+                <i class="bi bi-search-heart me-2"></i>ابحث عن طبيب
+            </a>
+        }
+    </div>
+</section>

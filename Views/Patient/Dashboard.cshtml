@@ -1,0 +1,200 @@
+@model ShefaaHealthCare.Models.ViewModels.PatientDashboardViewModel
+@{
+    ViewData["Title"] = "لوحة تحكم المريض";
+}
+
+<div class="bg-success bg-opacity-10 py-4 border-bottom">
+    <div class="container">
+        <div class="d-flex align-items-center gap-3">
+            <div class="rounded-circle bg-white shadow-sm d-flex align-items-center justify-content-center" style="width: 56px; height: 56px;">
+                <i class="bi bi-person-fill text-success fs-3"></i>
+            </div>
+            <div>
+                <h2 class="fw-bold mb-0">مرحباً، @Model.PatientName</h2>
+                <p class="text-muted mb-0 small">لوحة التحكم الطبية الخاصة بك</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-5">
+
+    <!-- ─── Toast Alerts ─── -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show rounded-4 shadow-sm border-0" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>@TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="إغلاق"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show rounded-4 shadow-sm border-0" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>@TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="إغلاق"></button>
+        </div>
+    }
+
+    <!-- ─── Stats Cards ─── -->
+    <div class="row g-4 mb-5">
+        <div class="col-lg-3 col-md-6">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-body p-4 d-flex align-items-center gap-3">
+                    <div class="rounded-3 bg-primary bg-opacity-10 d-flex align-items-center justify-content-center" style="width: 52px; height: 52px;">
+                        <i class="bi bi-calendar2-event text-primary fs-4"></i>
+                    </div>
+                    <div>
+                        <p class="text-muted small mb-1">إجمالي المواعيد</p>
+                        <h4 class="fw-bold mb-0">@Model.TotalAppointments</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-body p-4 d-flex align-items-center gap-3">
+                    <div class="rounded-3 bg-success bg-opacity-10 d-flex align-items-center justify-content-center" style="width: 52px; height: 52px;">
+                        <i class="bi bi-clock-history text-success fs-4"></i>
+                    </div>
+                    <div>
+                        <p class="text-muted small mb-1">مواعيد قادمة</p>
+                        <h4 class="fw-bold mb-0 text-success">@Model.UpcomingAppointmentsCount</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-body p-4 d-flex align-items-center gap-3">
+                    <div class="rounded-3 bg-info bg-opacity-10 d-flex align-items-center justify-content-center" style="width: 52px; height: 52px;">
+                        <i class="bi bi-check2-circle text-info fs-4"></i>
+                    </div>
+                    <div>
+                        <p class="text-muted small mb-1">مكتملة</p>
+                        <h4 class="fw-bold mb-0">@Model.CompletedAppointmentsCount</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-body p-4 d-flex align-items-center gap-3">
+                    <div class="rounded-3 bg-danger bg-opacity-10 d-flex align-items-center justify-content-center" style="width: 52px; height: 52px;">
+                        <i class="bi bi-x-circle text-danger fs-4"></i>
+                    </div>
+                    <div>
+                        <p class="text-muted small mb-1">ملغية</p>
+                        <h4 class="fw-bold mb-0">@Model.CancelledAppointmentsCount</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─── Quick Actions ─── -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <a asp-controller="Doctor" asp-action="Index" class="card border-0 shadow-sm rounded-4 h-100 text-decoration-none text-dark">
+                <div class="card-body p-4 text-center">
+                    <div class="rounded-circle bg-success bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-3" style="width: 64px; height: 64px;">
+                        <i class="bi bi-search-heart text-success fs-3"></i>
+                    </div>
+                    <h6 class="fw-bold mb-1">ابحث عن طبيب</h6>
+                    <p class="text-muted small mb-0">تصفح أطباءنا واحجز موعدك</p>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a asp-action="Appointments" class="card border-0 shadow-sm rounded-4 h-100 text-decoration-none text-dark">
+                <div class="card-body p-4 text-center">
+                    <div class="rounded-circle bg-primary bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-3" style="width: 64px; height: 64px;">
+                        <i class="bi bi-calendar2-check text-primary fs-3"></i>
+                    </div>
+                    <h6 class="fw-bold mb-1">مواعيدي</h6>
+                    <p class="text-muted small mb-0">عرض وإدارة جميع مواعيدك</p>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a asp-action="MedicalProfile" class="card border-0 shadow-sm rounded-4 h-100 text-decoration-none text-dark">
+                <div class="card-body p-4 text-center">
+                    <div class="rounded-circle bg-warning bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-3" style="width: 64px; height: 64px;">
+                        <i class="bi bi-folder2-open text-warning fs-3"></i>
+                    </div>
+                    <h6 class="fw-bold mb-1">الملف الطبي</h6>
+                    <p class="text-muted small mb-0">تحديث بياناتك وسجلاتك الطبية</p>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- ─── Upcoming Appointments ─── -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold mb-0"><i class="bi bi-calendar-event me-2 text-success"></i>المواعيد القادمة</h5>
+        <a asp-action="Appointments" class="btn btn-sm btn-outline-success rounded-pill px-3">عرض الكل <i class="bi bi-arrow-left ms-1"></i></a>
+    </div>
+
+    @if (Model.UpcomingAppointments.Any())
+    {
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 text-center">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="py-3">التاريخ والوقت</th>
+                            <th class="py-3">الطبيب</th>
+                            <th class="py-3">التخصص</th>
+                            <th class="py-3">الحالة</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var appt in Model.UpcomingAppointments)
+                        {
+                            <tr>
+                                <td class="py-3">
+                                    @appt.AppointmentDate.ToString("dd MMM yyyy")
+                                    <br>
+                                    <small class="text-muted">@appt.AppointmentDate.ToString("hh:mm tt")</small>
+                                </td>
+                                <td class="py-3 fw-bold">@appt.Doctor.FullName</td>
+                                <td class="py-3">@appt.Doctor.Specialization?.Name</td>
+                                <td class="py-3">
+                                    @{
+                                        var badgeClass = appt.Status switch
+                                        {
+                                            "Confirmed" => "bg-success",
+                                            "Pending" => "bg-warning text-dark",
+                                            _ => "bg-secondary"
+                                        };
+                                    }
+                                    <span class="badge @badgeClass rounded-pill">
+                                        @(appt.Status switch
+                                        {
+                                            "Confirmed" => "مؤكد",
+                                            "Pending" => "قيد الانتظار",
+                                            _ => appt.Status
+                                        })
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-calendar-x text-muted mb-3" style="font-size: 3rem; opacity: 0.3;"></i>
+                <h6 class="text-muted fw-bold">لا توجد مواعيد قادمة</h6>
+                <p class="text-muted small mb-3">ابحث عن طبيب واحجز موعدك الآن.</p>
+                <a asp-controller="Doctor" asp-action="Index" class="btn btn-success rounded-pill px-4">
+                    <i class="bi bi-search me-1"></i>ابحث عن طبيب
+                </a>
+            </div>
+        </div>
+    }
+
+</div>
