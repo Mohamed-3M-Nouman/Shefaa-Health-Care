@@ -4,6 +4,9 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import google.generativeai as genai
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = FastAPI(title="Shefaa AI Triage Nurse")
 
@@ -17,11 +20,13 @@ app.add_middleware(
 )
 
 # Configure Gemini
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "AIzaSyDeMaj9UuySK2r1x-XFxDoGKKZxf78IsOA")
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
+if not GEMINI_API_KEY or GEMINI_API_KEY == "ENCRYPTION_KEY":
+    raise ValueError("GEMINI_API_KEY environment variable is not set. Please set it securely.")
 genai.configure(api_key=GEMINI_API_KEY)
 
 # Use gemini-1.5-flash for fast text generation
-model = genai.GenerativeModel('gemini-1.5-flash')
+model = genai.GenerativeModel('gemini-2.0-flash-lite')
 
 class TriageRequest(BaseModel):
     symptoms: str
