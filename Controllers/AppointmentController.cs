@@ -5,20 +5,24 @@ using Microsoft.EntityFrameworkCore;
 using ShefaaHealthCare.Data;
 using ShefaaHealthCare.Models;
 using ShefaaHealthCare.Models.ViewModels;
+using System.Text.RegularExpressions;
 
 namespace ShefaaHealthCare.Controllers
 {
     [Authorize(Roles = "Patient")]
-    public class AppointmentController : Controller
+    public partial class AppointmentController(ApplicationDbContext context, UserManager<ApplicationUser> userManager) : Controller
     {
-        private readonly ApplicationDbContext _context;
-        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ApplicationDbContext _context = context;
+        private readonly UserManager<ApplicationUser> _userManager = userManager;
 
-        public AppointmentController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
-        {
-            _context = context;
-            _userManager = userManager;
-        }
+        [GeneratedRegex(@"^\d{16}$")]
+        private static partial Regex CardNumberRegex();
+
+        [GeneratedRegex(@"^(0[1-9]|1[0-2])\/\d{2}$")]
+        private static partial Regex ExpiryDateRegex();
+
+        [GeneratedRegex(@"^\d{3}$")]
+        private static partial Regex CvvRegex();
 
         // ══════════════════════════════════════════
         //  CHECKOUT (GET)
@@ -32,6 +36,21 @@ namespace ShefaaHealthCare.Controllers
 
             if (doctor == null) return NotFound();
 
+            var schedules = await _context.DoctorSchedules
+                .Where(s => s.DoctorId == doctorId)
+                .Select(s => s.DayOfWeek)
+                .ToListAsync();
+
+            var availableDates = new List<DateTime>();
+            for (int i = 0; i <= 30; i++)
+            {
+                var date = DateTime.Today.AddDays(i);
+                if (schedules.Contains((int)date.DayOfWeek))
+                {
+                    availableDates.Add(date);
+                }
+            }
+
             var model = new CheckoutViewModel
             {
                 DoctorId = doctor.Id,
@@ -42,7 +61,8 @@ namespace ShefaaHealthCare.Controllers
                 ClinicAddress = doctor.ClinicAddress,
                 DoctorRating = doctor.Rating,
                 DoctorExperience = doctor.ExperienceYears,
-                AppointmentDate = DateTime.Today.AddDays(1),
+                AppointmentDate = availableDates.FirstOrDefault() != default ? availableDates.FirstOrDefault() : DateTime.Today.AddDays(1),
+                AvailableDates = availableDates,
                 PaymentMethod = "Visa"
             };
 
@@ -123,11 +143,11 @@ namespace ShefaaHealthCare.Controllers
             {
                 if (string.IsNullOrWhiteSpace(model.CardHolderName))
                     ModelState.AddModelError(nameof(model.CardHolderName), "يرجى إدخال اسم حامل البطاقة.");
-                if (string.IsNullOrWhiteSpace(model.CardNumber) || !System.Text.RegularExpressions.Regex.IsMatch(model.CardNumber, @"^\d{16}$"))
+                if (string.IsNullOrWhiteSpace(model.CardNumber) || !CardNumberRegex().IsMatch(model.CardNumber))
                     ModelState.AddModelError(nameof(model.CardNumber), "رقم البطاقة يجب أن يتكون من 16 رقم.");
-                if (string.IsNullOrWhiteSpace(model.ExpiryDate) || !System.Text.RegularExpressions.Regex.IsMatch(model.ExpiryDate, @"^(0[1-9]|1[0-2])\/\d{2}$"))
+                if (string.IsNullOrWhiteSpace(model.ExpiryDate) || !ExpiryDateRegex().IsMatch(model.ExpiryDate))
                     ModelState.AddModelError(nameof(model.ExpiryDate), "صيغة تاريخ الانتهاء: MM/YY");
-                if (string.IsNullOrWhiteSpace(model.CVV) || !System.Text.RegularExpressions.Regex.IsMatch(model.CVV, @"^\d{3}$"))
+                if (string.IsNullOrWhiteSpace(model.CVV) || !CvvRegex().IsMatch(model.CVV))
                     ModelState.AddModelError(nameof(model.CVV), "رمز CVV يجب أن يتكون من 3 أرقام.");
             }
 
@@ -138,7 +158,10 @@ namespace ShefaaHealthCare.Controllers
                 ModelState.AddModelError(nameof(model.AppointmentTime), "يرجى اختيار وقت الموعد.");
 
             if (!ModelState.IsValid)
+            {
+                await RepopulateAvailableDatesAsync(model);
                 return View("Checkout", model);
+            }
 
             // Get patient
             var userId = _userManager.GetUserId(User);
@@ -164,6 +187,7 @@ namespace ShefaaHealthCare.Controllers
             if (alreadyBooked)
             {
                 ModelState.AddModelError(nameof(model.AppointmentTime), "هذا الموعد تم حجزه بالفعل. يرجى اختيار وقت آخر.");
+                await RepopulateAvailableDatesAsync(model);
                 return View("Checkout", model);
             }
 
@@ -213,6 +237,25 @@ namespace ShefaaHealthCare.Controllers
             };
 
             return View(receipt);
+        }
+
+        private async Task RepopulateAvailableDatesAsync(CheckoutViewModel model)
+        {
+            var schedules = await _context.DoctorSchedules
+                .Where(s => s.DoctorId == model.DoctorId)
+                .Select(s => s.DayOfWeek)
+                .ToListAsync();
+
+            var availableDates = new List<DateTime>();
+            for (int i = 0; i <= 30; i++)
+            {
+                var date = DateTime.Today.AddDays(i);
+                if (schedules.Contains((int)date.DayOfWeek))
+                {
+                    availableDates.Add(date);
+                }
+            }
+            model.AvailableDates = availableDates;
         }
     }
 }

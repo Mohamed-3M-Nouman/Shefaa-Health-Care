@@ -4,6 +4,36 @@
 }
 
 <div class="bg-success bg-opacity-10 py-4 border-bottom">
+    <style>
+        .horizontal-tabs {
+            display: flex;
+            overflow-x: auto;
+            gap: 10px;
+            padding-bottom: 10px;
+            scrollbar-width: thin;
+        }
+        .horizontal-tabs::-webkit-scrollbar {
+            height: 6px;
+        }
+        .horizontal-tabs::-webkit-scrollbar-thumb {
+            background-color: #198754;
+            border-radius: 10px;
+        }
+        .horizontal-tabs::-webkit-scrollbar-track {
+            background-color: #f8f9fa;
+        }
+        .date-tab-label {
+            min-width: 100px;
+            text-align: center;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+        }
+        .btn-check:checked + .date-tab-label {
+            background-color: #198754;
+            color: #fff;
+            border-color: #198754;
+        }
+    </style>
     <div class="container">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-2 small">
@@ -69,7 +99,31 @@
 
                             <!-- Date Picker -->
                             <h6 class="fw-bold mb-3"><i class="bi bi-calendar-event me-2 text-success"></i>اختر التاريخ</h6>
-                            <input asp-for="AppointmentDate" type="date" id="inputDate" class="form-control form-control-lg rounded-3 mb-2" min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                            <div class="horizontal-tabs mb-2" id="dateTabsContainer">
+                                @if (Model.AvailableDates != null && Model.AvailableDates.Any())
+                                {
+                                    var culture = new System.Globalization.CultureInfo("ar-EG");
+                                    foreach (var date in Model.AvailableDates)
+                                    {
+                                        string id = "date_" + date.ToString("yyyyMMdd");
+                                        string val = date.ToString("yyyy-MM-dd");
+                                        string dayName = culture.DateTimeFormat.GetDayName(date.DayOfWeek);
+                                        string dayMonth = date.ToString("dd MMMM", culture);
+
+                                        <div>
+                                            <input type="radio" class="btn-check date-radio" name="AppointmentDate" id="@id" value="@val" @(Model.AppointmentDate.Date == date.Date ? "checked" : "")>
+                                            <label class="btn btn-outline-success rounded-4 p-2 date-tab-label" for="@id">
+                                                <span class="d-block fw-bold mb-1">@dayName</span>
+                                                <small>@dayMonth</small>
+                                            </label>
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <div class="text-muted small py-2">لا توجد مواعيد متاحة للطبيب في الـ 30 يوماً القادمة.</div>
+                                }
+                            </div>
                             <span asp-validation-for="AppointmentDate" class="text-danger small"></span>
 
                             <!-- Time Slots Container -->
@@ -237,19 +291,20 @@
         var doctorId = @Model.DoctorId;
 
         // ── Fetch time slots on date change ──
-        document.getElementById('inputDate').addEventListener('change', function () {
-            var date = this.value;
-            var container = document.getElementById('timeSlotsContainer');
-            document.getElementById('selectedTimeInput').value = '';
-            document.getElementById('summaryTime').textContent = '—';
+        document.querySelectorAll('.date-radio').forEach(function(radio) {
+            radio.addEventListener('change', function () {
+                var date = this.value;
+                var container = document.getElementById('timeSlotsContainer');
+                document.getElementById('selectedTimeInput').value = '';
+                document.getElementById('summaryTime').textContent = '—';
 
-            if (!date) { container.innerHTML = '<div class="text-center py-4 text-muted"><i class="bi bi-calendar3 fs-1 d-block mb-2 opacity-25"></i>اختر تاريخاً</div>'; return; }
+                if (!date) { container.innerHTML = '<div class="text-center py-4 text-muted"><i class="bi bi-calendar3 fs-1 d-block mb-2 opacity-25"></i>اختر تاريخاً</div>'; return; }
 
-            // Update summary date
-            var d = new Date(date);
-            document.getElementById('summaryDate').textContent = d.toLocaleDateString('ar-EG', { day: 'numeric', month: 'long', year: 'numeric' });
+                // Update summary date
+                var d = new Date(date);
+                document.getElementById('summaryDate').textContent = d.toLocaleDateString('ar-EG', { day: 'numeric', month: 'long', year: 'numeric' });
 
-            container.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-success" role="status"></div><p class="text-muted mt-2 small">جاري تحميل المواعيد...</p></div>';
+                container.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-success" role="status"></div><p class="text-muted mt-2 small">جاري تحميل المواعيد...</p></div>';
 
             fetch('/Appointment/GetAvailableSlots?doctorId=' + doctorId + '&selectedDate=' + date)
                 .then(function(r) { return r.json(); })
@@ -293,18 +348,20 @@
                 .catch(function() {
                     container.innerHTML = '<div class="alert alert-danger border-0 rounded-4 text-center py-3 mb-0"><i class="bi bi-wifi-off me-2"></i>حدث خطأ. حاول مجدداً.</div>';
                 });
+            });
         });
 
         // ── Auto-load slots if date is pre-filled ──
         window.addEventListener('DOMContentLoaded', function() {
-            var dateInput = document.getElementById('inputDate');
-            if (dateInput.value) dateInput.dispatchEvent(new Event('change'));
+            var selectedRadio = document.querySelector('.date-radio:checked');
+            if (selectedRadio) selectedRadio.dispatchEvent(new Event('change'));
         });
 
         // ── Step Navigation ──
         function goToStep(step) {
             if (step === 2) {
-                var dateVal = document.getElementById('inputDate').value;
+                var dateRadio = document.querySelector('.date-radio:checked');
+                var dateVal = dateRadio ? dateRadio.value : '';
                 var timeVal = document.getElementById('selectedTimeInput').value;
                 var errEl = document.getElementById('step1Error');
                 errEl.classList.add('d-none');

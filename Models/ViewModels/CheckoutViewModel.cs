@@ -24,6 +24,8 @@ namespace ShefaaHealthCare.Models.ViewModels
         [Display(Name = "وقت الموعد")]
         public string AppointmentTime { get; set; } = string.Empty; // "HH:mm"
 
+        public List<DateTime> AvailableDates { get; set; } = [];
+
         // ── Payment Method ──
         [Required(ErrorMessage = "يرجى اختيار طريقة الدفع.")]
         [Display(Name = "طريقة الدفع")]
