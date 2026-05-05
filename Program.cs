@@ -11,9 +11,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpClient();
 
-// Register ApplicationDbContext with SQL Server
+// Register ApplicationDbContext with SQLite (cross-platform)
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Register ASP.NET Core Identity
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
@@ -50,9 +50,14 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Home/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
+    // Only redirect to HTTPS in production
+    app.UseHttpsRedirection();
 }
-
-app.UseHttpsRedirection();
+else
+{
+    // In development, use HTTP only to avoid certificate issues
+    app.UseExceptionHandler("/Home/Error");
+}
 app.UseRouting();
 
 app.UseAuthentication();

@@ -17,12 +17,12 @@
 <div class="container py-5">
     <!-- Filters Bar -->
     <div class="card border-0 shadow-sm rounded-4 mb-5 p-3">
-        <form method="get" asp-action="Index" class="row g-3 align-items-center">
+        <form method="get" asp-controller="Doctor" asp-action="Index" class="row g-3 align-items-center">
             <div class="col-md-5">
                 <input type="text" name="searchQuery" value="@searchQuery" class="form-control form-control-lg bg-light border-0" placeholder="ابحث بالاسم، التخصص، أو رقم الهاتف...">
             </div>
             <div class="col-md-4">
-                <select name="specializationId" class="form-select form-select-lg bg-light border-0">
+                <select id="specializationSelect" name="specializationId" class="form-select form-select-lg bg-light border-0">
                     <option value="">كل التخصصات</option>
                     @if (specializations != null)
                     {
@@ -42,7 +42,7 @@
             </div>
             <div class="col-md-3 d-flex gap-2">
                 <button type="submit" class="btn btn-success btn-lg flex-fill">بحث <i class="bi bi-search"></i></button>
-                <a asp-action="Index" class="btn btn-light btn-lg text-muted"><i class="bi bi-arrow-clockwise"></i></a>
+                <a href="@Url.Action("Index", "Doctor")" class="btn btn-light btn-lg text-muted"><i class="bi bi-arrow-clockwise"></i></a>
             </div>
         </form>
     </div>
@@ -128,3 +128,26 @@
         </nav>
     }
 </div>
+
+@section Scripts {
+<script>
+    // Auto-submit form when specialization changes
+    document.getElementById('specializationSelect').addEventListener('change', function() {
+        const form = this.closest('form');
+        if (form) {
+            // Reset page to 1 when changing specialization
+            const pageInput = form.querySelector('input[name="page"]');
+            if (!pageInput) {
+                const hidden = document.createElement('input');
+                hidden.type = 'hidden';
+                hidden.name = 'page';
+                hidden.value = '1';
+                form.appendChild(hidden);
+            } else {
+                pageInput.value = '1';
+            }
+            form.submit();
+        }
+    });
+</script>
+}

@@ -116,23 +116,25 @@
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label fw-semibold"><i class="bi bi-gender-ambiguous me-1"></i>الجنس</label>
-                        <select asp-for="Gender" class="form-select">
-                            <option value="">-- اختر --</option>
+                        <select asp-for="Gender" class="form-select" onchange="validateDropdown(this)">
+                            <option value="" disabled selected>-- اختر الجنس --</option>
                             <option value="ذكر">ذكر</option>
                             <option value="أنثى">أنثى</option>
                         </select>
+                        <div class="invalid-feedback d-block" id="genderError"></div>
                     </div>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label fw-semibold"><i class="bi bi-droplet me-1"></i>فصيلة الدم</label>
-                    <select asp-for="BloodType" class="form-select">
-                        <option value="">-- اختر --</option>
+                    <select asp-for="BloodType" class="form-select" onchange="validateDropdown(this)">
+                        <option value="" disabled selected>-- اختر فصيلة الدم --</option>
                         <option>A+</option><option>A-</option>
                         <option>B+</option><option>B-</option>
                         <option>AB+</option><option>AB-</option>
                         <option>O+</option><option>O-</option>
                     </select>
+                    <div class="invalid-feedback d-block" id="bloodTypeError"></div>
                 </div>
 
                 <div class="mb-4">
@@ -160,9 +162,10 @@
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label class="form-label fw-semibold"><i class="bi bi-award me-1"></i>التخصص</label>
-                        <select asp-for="SpecializationId" class="form-select" asp-items="@(ViewBag.Specializations as SelectList)">
-                            <option value="">-- اختر التخصص --</option>
+                        <select asp-for="SpecializationId" class="form-select" asp-items="@(ViewBag.Specializations as SelectList)" onchange="validateDropdown(this)" required>
+                            <option value="" disabled selected>-- اختر التخصص --</option>
                         </select>
+                        <div class="invalid-feedback d-block" id="specializationError"></div>
                         <span asp-validation-for="SpecializationId" class="text-danger small"></span>
                     </div>
                     <div class="col-md-6 mb-3">
@@ -317,6 +320,23 @@
         }
     }
 
+    function validateDropdown(selectElement) {
+        const errorElement = selectElement.parentElement.querySelector('.invalid-feedback');
+        
+        // If value is empty (placeholder), show error message
+        if (!selectElement.value || selectElement.value.trim() === '') {
+            if (errorElement) {
+                errorElement.textContent = 'يرجى اختيار قيمة من القائمة';
+                selectElement.classList.add('is-invalid');
+            }
+        } else {
+            if (errorElement) {
+                errorElement.textContent = '';
+            }
+            selectElement.classList.remove('is-invalid');
+        }
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.valsummary').forEach(el => {
             if (!el.textContent.trim()) el.style.display = 'none';
@@ -326,6 +346,44 @@
         
         const t = document.getElementById('userTypeInput').value;
         if (t) selectType(t);
+
+        // Add form submission validation
+        document.getElementById('regForm').addEventListener('submit', function(e) {
+            let isValid = true;
+            const genderSelect = document.querySelector('[name="Gender"]');
+            const bloodTypeSelect = document.querySelector('[name="BloodType"]');
+            const specializationSelect = document.querySelector('[name="SpecializationId"]');
+
+            // Validate Gender (if filled, must be valid)
+            if (genderSelect && genderSelect.value && !genderSelect.value.trim()) {
+                genderSelect.classList.add('is-invalid');
+                const errorEl = document.getElementById('genderError');
+                if (errorEl) errorEl.textContent = 'يرجى اختيار الجنس';
+                isValid = false;
+            }
+
+            // Validate BloodType (if filled, must be valid)
+            if (bloodTypeSelect && bloodTypeSelect.value && !bloodTypeSelect.value.trim()) {
+                bloodTypeSelect.classList.add('is-invalid');
+                const errorEl = document.getElementById('bloodTypeError');
+                if (errorEl) errorEl.textContent = 'يرجى اختيار فصيلة الدم';
+                isValid = false;
+            }
+
+            // Validate Specialization (for doctors, must be valid)
+            if (specializationSelect && selectedType === 'Doctor') {
+                if (!specializationSelect.value || !specializationSelect.value.trim()) {
+                    specializationSelect.classList.add('is-invalid');
+                    const errorEl = document.getElementById('specializationError');
+                    if (errorEl) errorEl.textContent = 'يرجى اختيار التخصص';
+                    isValid = false;
+                }
+            }
+
+            if (!isValid) {
+                e.preventDefault();
+            }
+        });
     });
 </script>
 </body>

@@ -1,5 +1,7 @@
 @{
     ViewData["Title"] = "الرئيسية";
+    var popularSpecializations = ViewBag.PopularSpecializations as IEnumerable<ShefaaHealthCare.Models.Specialization>;
+    var searchSuggestions = ViewBag.SearchSuggestions as IEnumerable<string>;
 }
 
 <!-- ══════════════════════════════════════════ -->
@@ -34,7 +36,7 @@
                             asp-controller="Doctor" asp-action="Index">
                             <i class="bi bi-search-heart me-2"></i>ابحث عن طبيب
                         </a>
-                        <a id="heroAppointments" class="btn btn-outline-success btn-lg rounded-pill px-4" href="#">
+                        <a id="heroAppointments" class="btn btn-outline-success btn-lg rounded-pill px-4" href="/Patient/Appointments">
                             <i class="bi bi-calendar2-check me-2"></i>مواعيدي
                         </a>
                     }
@@ -94,23 +96,34 @@
                     <div class="input-group input-group-lg">
 
                         <input id="searchInput" type="text" class="form-control shadow-none rounded-start-pill"
-                            name="search" placeholder="ابحث عن طبيب بالاسم أو التخصص..." aria-label="بحث عن طبيب" />
+                            name="searchQuery" placeholder="ابحث عن طبيب بالاسم أو التخصص..." aria-label="بحث عن طبيب" />
+                        <input type="hidden" name="specializationId" value="" />
                         <button id="searchBtn" class="btn btn-success px-4 rounded-end-pill" type="submit">
                             <i class="bi bi-search me-1"></i>ابحث
                         </button>
                     </div>
+                    <datalist id="doctorSearchSuggestions">
+                        @if (searchSuggestions != null)
+                        {
+                            foreach (var suggestion in searchSuggestions)
+                            {
+                                <option value="@suggestion"></option>
+                            }
+                        }
+                    </datalist>
                     <div class="d-flex flex-wrap gap-2 mt-3 justify-content-center">
                         <span class="text-muted small ms-1">بحث شائع:</span>
-                        <a href="@Url.Action("Index", "Doctor", new { search = "قلب" })"
-                            class="badge bg-success bg-opacity-10 text-success text-decoration-none rounded-pill px-3 py-2">قلب</a>
-                        <a href="@Url.Action("Index", "Doctor", new { search = "عظام" })"
-                            class="badge bg-success bg-opacity-10 text-success text-decoration-none rounded-pill px-3 py-2">عظام</a>
-                        <a href="@Url.Action("Index", "Doctor", new { search = "جلدية" })"
-                            class="badge bg-success bg-opacity-10 text-success text-decoration-none rounded-pill px-3 py-2">جلدية</a>
-                        <a href="@Url.Action("Index", "Doctor", new { search = "اسنان" })"
-                            class="badge bg-success bg-opacity-10 text-success text-decoration-none rounded-pill px-3 py-2">أسنان</a>
-                        <a href="@Url.Action("Index", "Doctor", new { search = "باطنة" })"
-                            class="badge bg-success bg-opacity-10 text-success text-decoration-none rounded-pill px-3 py-2">باطنة</a>
+                        @if (popularSpecializations != null)
+                        {
+                            int numberOfCategories = 5; // Limit to top 5 categories
+                            foreach (var spec in popularSpecializations)
+                            {
+                                if(numberOfCategories <= 0) break;
+                                numberOfCategories--;
+                                <a href="@Url.Action("Index", "Doctor", new { searchQuery = "", specializationId = spec.Id })"
+                                   class="badge bg-success bg-opacity-10 text-success text-decoration-none rounded-pill px-3 py-2">@spec.Name</a>
+                            }
+                        }
                     </div>
                 </form>
             </div>

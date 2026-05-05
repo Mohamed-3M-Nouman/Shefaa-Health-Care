@@ -129,12 +129,12 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a id="navAbout" class="nav-link text-dark fw-medium" asp-controller="Home" asp-action="Privacy">
+                            <a id="navAbout" class="nav-link text-dark fw-medium" asp-controller="Home" asp-action="About">
                                 <i class="bi bi-info-circle me-1"></i>من نحن
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a id="navServices" class="nav-link text-dark fw-medium" asp-controller="Doctor" asp-action="Index">
+                            <a id="navServices" class="nav-link text-dark fw-medium" asp-controller="Home" asp-action="Services">
                                 <i class="bi bi-hospital me-1"></i>خدماتنا
                             </a>
                         </li>
@@ -144,7 +144,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a id="navContact" class="nav-link text-dark fw-medium" href="#footer-contact">
+                            <a id="navContact" class="nav-link text-dark fw-medium" asp-controller="Home" asp-action="Contact">
                                 <i class="bi bi-envelope me-1"></i>تواصل معنا
                             </a>
                         </li>
@@ -217,23 +217,23 @@
                     </p>
                     <!-- Social Media -->
                     <div id="footer-social" class="d-flex gap-2">
-                        <a href="#" class="btn btn-outline-light btn-sm rounded-circle d-inline-flex align-items-center justify-content-center"
+                        <a href="https://www.facebook.com" class="btn btn-outline-light btn-sm rounded-circle d-inline-flex align-items-center justify-content-center"
                            style="width:36px;height:36px;" aria-label="Facebook">
                             <i class="bi bi-facebook"></i>
                         </a>
-                        <a href="#" class="btn btn-outline-light btn-sm rounded-circle d-inline-flex align-items-center justify-content-center"
+                        <a href="https://x.com" class="btn btn-outline-light btn-sm rounded-circle d-inline-flex align-items-center justify-content-center"
                            style="width:36px;height:36px;" aria-label="X (Twitter)">
                             <i class="bi bi-twitter-x"></i>
                         </a>
-                        <a href="#" class="btn btn-outline-light btn-sm rounded-circle d-inline-flex align-items-center justify-content-center"
+                        <a href="https://www.instagram.com" class="btn btn-outline-light btn-sm rounded-circle d-inline-flex align-items-center justify-content-center"
                            style="width:36px;height:36px;" aria-label="Instagram">
                             <i class="bi bi-instagram"></i>
                         </a>
-                        <a href="#" class="btn btn-outline-light btn-sm rounded-circle d-inline-flex align-items-center justify-content-center"
+                        <a href="https://www.linkedin.com" class="btn btn-outline-light btn-sm rounded-circle d-inline-flex align-items-center justify-content-center"
                            style="width:36px;height:36px;" aria-label="LinkedIn">
                             <i class="bi bi-linkedin"></i>
                         </a>
-                        <a href="#" class="btn btn-outline-light btn-sm rounded-circle d-inline-flex align-items-center justify-content-center"
+                        <a href="https://www.youtube.com" class="btn btn-outline-light btn-sm rounded-circle d-inline-flex align-items-center justify-content-center"
                            style="width:36px;height:36px;" aria-label="YouTube">
                             <i class="bi bi-youtube"></i>
                         </a>
@@ -245,23 +245,18 @@
                     <h6 class="fw-bold mb-3 text-white">عن شفاء</h6>
                     <ul class="list-unstyled small">
                         <li class="mb-2">
-                            <a class="text-white-50 text-decoration-none" asp-controller="Home" asp-action="Privacy">
+                            <a class="text-white-50 text-decoration-none" asp-controller="Home" asp-action="About">
                                 <i class="bi bi-chevron-left me-1 small"></i>من نحن
                             </a>
                         </li>
                         <li class="mb-2">
-                            <a class="text-white-50 text-decoration-none" asp-controller="Doctor" asp-action="Index">
-                                <i class="bi bi-chevron-left me-1 small"></i>أطباؤنا
+                            <a class="text-white-50 text-decoration-none" asp-controller="Home" asp-action="Services">
+                                <i class="bi bi-chevron-left me-1 small"></i>خدماتنا
                             </a>
                         </li>
                         <li class="mb-2">
                             <a class="text-white-50 text-decoration-none" asp-controller="Account" asp-action="Register">
-                                <i class="bi bi-chevron-left me-1 small"></i>انضم كطبيب
-                            </a>
-                        </li>
-                        <li class="mb-2">
-                            <a class="text-white-50 text-decoration-none" href="#">
-                                <i class="bi bi-chevron-left me-1 small"></i>المدونة الصحية
+                                <i class="bi bi-chevron-left me-1 small"></i>انضم إلينا
                             </a>
                         </li>
                     </ul>
@@ -272,23 +267,13 @@
                     <h6 class="fw-bold mb-3 text-white">الدعم</h6>
                     <ul class="list-unstyled small">
                         <li class="mb-2">
-                            <a class="text-white-50 text-decoration-none" href="#">
-                                <i class="bi bi-chevron-left me-1 small"></i>مركز المساعدة
-                            </a>
-                        </li>
-                        <li class="mb-2">
-                            <a class="text-white-50 text-decoration-none" href="#">
+                            <a class="text-white-50 text-decoration-none" asp-controller="Home" asp-action="PopularQuestions">
                                 <i class="bi bi-chevron-left me-1 small"></i>الأسئلة الشائعة
                             </a>
                         </li>
                         <li class="mb-2">
-                            <a class="text-white-50 text-decoration-none" href="#">
+                            <a class="text-white-50 text-decoration-none" asp-controller="Home" asp-action="Contact">
                                 <i class="bi bi-chevron-left me-1 small"></i>الإبلاغ عن مشكلة
-                            </a>
-                        </li>
-                        <li class="mb-2">
-                            <a class="text-white-50 text-decoration-none" href="#">
-                                <i class="bi bi-chevron-left me-1 small"></i>إمكانية الوصول
                             </a>
                         </li>
                     </ul>
@@ -299,22 +284,22 @@
                     <h6 class="fw-bold mb-3 text-white">قانوني</h6>
                     <ul class="list-unstyled small">
                         <li class="mb-2">
-                            <a class="text-white-50 text-decoration-none" href="#">
+                            <a class="text-white-50 text-decoration-none" asp-controller="Home" asp-action="Privacy">
                                 <i class="bi bi-chevron-left me-1 small"></i>سياسة الخصوصية
                             </a>
                         </li>
                         <li class="mb-2">
-                            <a class="text-white-50 text-decoration-none" href="#">
+                            <a class="text-white-50 text-decoration-none" asp-controller="Home" asp-action="Terms">
                                 <i class="bi bi-chevron-left me-1 small"></i>الشروط والأحكام
                             </a>
                         </li>
                         <li class="mb-2">
-                            <a class="text-white-50 text-decoration-none" href="#">
+                            <a class="text-white-50 text-decoration-none" asp-controller="Home" asp-action="Hipaa">
                                 <i class="bi bi-shield-check me-1 small"></i>الامتثال لـ HIPAA
                             </a>
                         </li>
                         <li class="mb-2">
-                            <a class="text-white-50 text-decoration-none" href="#">
+                            <a class="text-white-50 text-decoration-none" asp-controller="Home" asp-action="Cookies">
                                 <i class="bi bi-chevron-left me-1 small"></i>سياسة الكوكيز
                             </a>
                         </li>
@@ -325,6 +310,11 @@
                 <div id="footer-contact" class="col-lg-2 col-md-3 col-6 mb-3">
                     <h6 class="fw-bold mb-3 text-white">تواصل معنا</h6>
                     <ul class="list-unstyled small">
+                        <li class="mb-2">
+                            <a class="text-white-50 text-decoration-none" asp-controller="Home" asp-action="Contact">
+                                <i class="bi bi-chevron-left me-1 small"></i>اتصل بنا
+                            </a>
+                        </li>
                         <li class="mb-2 text-white-50">
                             <i class="bi bi-envelope-at me-2 text-success"></i>info&#64;shefaa.com
                         </li>
@@ -353,7 +343,7 @@
                 </div>
                 <div class="col-md-6 text-center text-md-end mt-2 mt-md-0">
                     <span class="badge bg-success bg-opacity-25 text-success-emphasis rounded-pill px-3 py-2 small">
-                        <i class="bi bi-shield-fill-check me-1"></i>بيانات مشفرة ومحمية
+                        <i class="bi bi-shield-fill-check me-1" color="white"></i>بيانات مشفرة ومحمية
                     </span>
                 </div>
             </div>

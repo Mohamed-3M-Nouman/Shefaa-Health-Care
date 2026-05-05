@@ -52,12 +52,13 @@ namespace ShefaaHealthCare.Controllers
             int totalItems = await query.CountAsync();
             int totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
 
-            var doctors = await query
+            var doctors = query
+                .AsEnumerable() // Switch to LINQ-to-Objects (client-side) for OrderBy since SQLite doesn't support decimal in ORDER BY
                 .OrderByDescending(d => d.Rating) // Order by top rated first
                 .ThenBy(d => d.FullName)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
-                .ToListAsync();
+                .ToList();
 
             // Populate ViewBags for UI binding
             ViewBag.SearchQuery = searchQuery;

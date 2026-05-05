@@ -1,0 +1,484 @@
+@{
+    ViewData["Title"] = "الأسئلة الشائعة";
+}
+
+<style>
+    .faq-section {
+        padding: 3rem 0;
+    }
+
+    .faq-item {
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .faq-question {
+        background: linear-gradient(135deg, rgba(40, 167, 69, 0.05) 0%, rgba(40, 167, 69, 0.02) 100%);
+        border: 2px solid rgba(40, 167, 69, 0.2);
+        border-radius: 12px;
+        padding: 1.5rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        transition: all 0.3s ease;
+    }
+
+    .faq-question:hover {
+        background: linear-gradient(135deg, rgba(40, 167, 69, 0.1) 0%, rgba(40, 167, 69, 0.05) 100%);
+        border-color: rgba(40, 167, 69, 0.4);
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.1);
+        transform: translateX(-5px);
+    }
+
+    .faq-question.active {
+        background: linear-gradient(135deg, rgba(40, 167, 69, 0.15) 0%, rgba(40, 167, 69, 0.08) 100%);
+        border-color: #28a745;
+    }
+
+    .faq-question-text {
+        flex-grow: 1;
+        font-weight: 600;
+        color: #2d3748;
+        font-size: 1.1rem;
+        margin-right: 1rem;
+    }
+
+    .faq-icon {
+        width: 40px;
+        height: 40px;
+        background: #28a745;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        transition: transform 0.3s ease;
+        flex-shrink: 0;
+    }
+
+    .faq-icon i {
+        font-size: 1.2rem;
+    }
+
+    .faq-question.active .faq-icon {
+        transform: rotate(180deg);
+        background: #20c997;
+    }
+
+    .faq-answer {
+        display: none;
+        background: #f8f9fa;
+        border: 2px solid #e9ecef;
+        border-top: none;
+        border-bottom-left-radius: 12px;
+        border-bottom-right-radius: 12px;
+        padding: 2rem;
+        color: #555;
+        line-height: 1.8;
+        animation: slideDown 0.3s ease;
+    }
+
+    .faq-answer.show {
+        display: block;
+    }
+
+    @@keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .faq-answer h6 {
+        color: #28a745;
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+
+    .faq-answer ul {
+        margin: 1rem 0;
+        padding-left: 1.5rem;
+    }
+
+    .faq-answer li {
+        margin-bottom: 0.8rem;
+    }
+
+    .faq-answer a {
+        color: #28a745;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .faq-answer a:hover {
+        text-decoration: underline;
+    }
+
+    .category-tabs {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 3rem;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .category-tab {
+        padding: 0.75rem 1.5rem;
+        border: 2px solid rgba(40, 167, 69, 0.2);
+        background: white;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 500;
+        color: #555;
+    }
+
+    .category-tab:hover {
+        border-color: #28a745;
+        color: #28a745;
+    }
+
+    .category-tab.active {
+        background: #28a745;
+        border-color: #28a745;
+        color: white;
+    }
+
+    .faq-container {
+        background: white;
+        border-radius: 16px;
+        padding: 3rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+</style>
+
+<!-- ══════════════════════════════════════════ -->
+<!--  HERO SECTION                              -->
+<!-- ══════════════════════════════════════════ -->
+<section class="hero-section bg-success bg-opacity-10 position-relative overflow-hidden py-5">
+    <div class="container position-relative">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6" data-aos="fade-up">
+                <span class="badge bg-success bg-opacity-25 text-success rounded-4 px-3 py-2 mb-3 fs-6">
+                    <i class="bi bi-question-circle me-1"></i>الأسئلة الشائعة
+                </span>
+                <h1 class="display-4 fw-800 text-dark mb-3 lh-base">
+                    هل لديك
+                    <br />
+                    <span class="text-success">أسئلة؟</span>
+                </h1>
+                <p class="fs-5 text-muted mb-4 lh-lg">
+                    نجمع هنا الأسئلة الشائعة التي يسألها مستخدمونا 
+                    مع إجابات شاملة وواضحة لكل سؤال.
+                </p>
+                <div class="d-flex gap-3">
+                    <div class="text-center">
+                        <h4 class="text-success fw-bold mb-0">50+</h4>
+                        <small class="text-muted">سؤال شائع</small>
+                    </div>
+                    <div class="vr"></div>
+                    <div class="text-center">
+                        <h4 class="text-success fw-bold mb-0">100%</h4>
+                        <small class="text-muted">إجابات مفيدة</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 text-center" data-aos="fade-up" data-aos-delay="200">
+                <div class="bg-white rounded-5 shadow p-5">
+                    <div style="font-size: 120px; color: #28a745; line-height: 1;">
+                        <i class="bi bi-chat-left-quote"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════ -->
+<!--  FAQ SECTION                               -->
+<!-- ══════════════════════════════════════════ -->
+<section class="faq-section">
+    <div class="container">
+        <!-- Section Header -->
+        <div class="text-center mb-5" data-aos="fade-up">
+            <h2 class="fw-bold text-dark mb-3">الأسئلة الشائعة</h2>
+            <p class="text-muted fs-5">اضغط على أي سؤال لقراءة الإجابة المفصلة</p>
+        </div>
+
+        <!-- FAQ Container -->
+        <div class="faq-container" data-aos="fade-up">
+            <!-- FAQ Item 1 -->
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span class="faq-question-text">كيف أسجل حسابي في منصة شفاء؟</span>
+                    <div class="faq-icon">
+                        <i class="bi bi-chevron-down"></i>
+                    </div>
+                </div>
+                <div class="faq-answer">
+                    <p>
+                        التسجيل في منصة شفاء بسيط جداً! اتبع الخطوات التالية:
+                    </p>
+                    <ul>
+                        <li>انقر على زر "سجّل مجاناً" في الصفحة الرئيسية</li>
+                        <li>اختر ما إذا كنت تريد التسجيل كمريض أو طبيب</li>
+                        <li>أدخل بياناتك الشخصية والبريد الإلكتروني</li>
+                        <li>تحقق من بريدك الإلكتروني بالنقر على الرابط المرسل</li>
+                        <li>استمتع بخدماتنا!</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- FAQ Item 2 -->
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span class="faq-question-text">هل بيانات صحتي آمنة وسرية؟</span>
+                    <div class="faq-icon">
+                        <i class="bi bi-chevron-down"></i>
+                    </div>
+                </div>
+                <div class="faq-answer">
+                    <p>
+                        نعم، نأخذ الأمان والخصوصية بجدية تامة. جميع بيانات المرضى محمية بـ:
+                    </p>
+                    <ul>
+                        <li><strong>تشفير بروتوكول SSL/TLS:</strong> جميع البيانات مشفرة أثناء النقل</li>
+                        <li><strong>تشفير قاعدة البيانات:</strong> البيانات المخزنة محمية بأعلى معايير التشفير</li>
+                        <li><strong>سياسة الخصوصية الصارمة:</strong> لا نشارك بيانات المرضى مع أطراف ثالثة</li>
+                        <li><strong>الامتثال للمعايير الدولية:</strong> نتوافق مع معايير HIPAA والقوانين المحلية</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- FAQ Item 3 -->
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span class="faq-question-text">كيف أحجز موعداً مع طبيب؟</span>
+                    <div class="faq-icon">
+                        <i class="bi bi-chevron-down"></i>
+                    </div>
+                </div>
+                <div class="faq-answer">
+                    <p>
+                        حجز موعد بسيط وسريع:
+                    </p>
+                    <ul>
+                        <li>ابحث عن الطبيب المتخصص الذي تريده من خلال قائمة التخصصات</li>
+                        <li>اختر الطبيب المفضل لديك واطلع على سيرته الذاتية والتقييمات</li>
+                        <li>انقر على "حجز موعد" واختر التاريخ والوقت المناسبين</li>
+                        <li>أكد حجزك واستقبل تأكيداً عبر البريد الإلكتروني</li>
+                        <li>ستتلقى تذكيراً قبل الموعد بـ 24 ساعة</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- FAQ Item 4 -->
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span class="faq-question-text">ما هو الممرض الذكي؟</span>
+                    <div class="faq-icon">
+                        <i class="bi bi-chevron-down"></i>
+                    </div>
+                </div>
+                <div class="faq-answer">
+                    <p>
+                        الممرض الذكي هو نظام قائم على الذكاء الاصطناعي يساعدك على:
+                    </p>
+                    <ul>
+                        <li><strong>تحليل الأعراض:</strong> اوصف أعراضك والنظام سيحللها</li>
+                        <li><strong>التوصيات الأولية:</strong> احصل على توصيات بشأن التخصص الطبي المناسب</li>
+                        <li><strong>الإرشادات الصحية:</strong> نصائح طبية موثوقة للعناية الذاتية</li>
+                        <li><strong>توجيهك للطبيب المناسب:</strong> يوصيك بالطبيب الأنسب لحالتك</li>
+                    </ul>
+                    <p class="mt-3">
+                        <strong>ملاحظة:</strong> الممرض الذكي لا يحل محل استشارة الطبيب الحقيقي
+                    </p>
+                </div>
+            </div>
+
+            <!-- FAQ Item 5 -->
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span class="faq-question-text">كيف أرفع ملفاتي الطبية والوثائق؟</span>
+                    <div class="faq-icon">
+                        <i class="bi bi-chevron-down"></i>
+                    </div>
+                </div>
+                <div class="faq-answer">
+                    <p>
+                        يمكنك رفع ملفاتك الطبية بسهولة من لوحة التحكم:
+                    </p>
+                    <ul>
+                        <li>اذهب إلى قسم "السجلات الطبية" من لوحة التحكم</li>
+                        <li>انقر على "إضافة ملف جديد" أو "رفع وثيقة"</li>
+                        <li>اختر الملف من جهازك (صور، وثائق PDF إلخ)</li>
+                        <li>أضف تفاصيل عن الملف (التاريخ، نوع التقرير إلخ)</li>
+                        <li>انقر على "حفظ" والملف سيكون آمناً في سجلك</li>
+                    </ul>
+                    <p class="mt-3">
+                        يمكن للأطباء الذين تزورهم الوصول إلى هذه الملفات لتقديم رعاية أفضل
+                    </p>
+                </div>
+            </div>
+
+            <!-- FAQ Item 6 -->
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span class="faq-question-text">هل هناك رسوم للاستخدام؟</span>
+                    <div class="faq-icon">
+                        <i class="bi bi-chevron-down"></i>
+                    </div>
+                </div>
+                <div class="faq-answer">
+                    <p>
+                        <strong>التسجيل والخدمات الأساسية مجانية!</strong>
+                    </p>
+                    <ul>
+                        <li><strong>مجاني:</strong> التسجيل، البحث عن الأطباء، حفظ السجلات الطبية</li>
+                        <li><strong>رسوم الاستشارة:</strong> تختلف حسب الطبيب والخدمة المطلوبة</li>
+                        <li><strong>طرق الدفع:</strong> نقبل جميع بطاقات الائتمان والمحافظ الرقمية</li>
+                        <li><strong>سياسة الاسترجاع:</strong> يمكنك استرجاع المبلغ إذا لم تكن راضياً</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- FAQ Item 7 -->
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span class="faq-question-text">كيف أتواصل مع الدعم الفني إذا واجهت مشكلة؟</span>
+                    <div class="faq-icon">
+                        <i class="bi bi-chevron-down"></i>
+                    </div>
+                </div>
+                <div class="faq-answer">
+                    <p>
+                        نحن هنا لمساعدتك! يمكنك التواصل معنا بعدة طرق:
+                    </p>
+                    <ul>
+                        <li><strong>البريد الإلكتروني:</strong> support@shefaa.health - نرد في خلال 24 ساعة</li>
+                        <li><strong>الهاتف:</strong> +20 2 123 456 789 - متاح من 9 صباحاً إلى 6 مساءً</li>
+                        <li><strong>الدردشة الحية:</strong> اضغط على أيقونة المحادثة في الزاوية السفلية اليسرى</li>
+                        <li><strong>الوسائط الاجتماعية:</strong> تابعنا على فيسبوك وتويتر للتحديثات</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- FAQ Item 8 -->
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span class="faq-question-text">هل يمكن للطبيب أن يوصف الأدوية من خلال المنصة؟</span>
+                    <div class="faq-icon">
+                        <i class="bi bi-chevron-down"></i>
+                    </div>
+                </div>
+                <div class="faq-answer">
+                    <p>
+                        نعم! بعد الاستشارة مع الطبيب، يمكنه:
+                    </p>
+                    <ul>
+                        <li>إصدار وصفة طبية رقمية</li>
+                        <li>إرسال الوصفة مباشرة إلى الصيدلية من اختيارك</li>
+                        <li>يمكنك طباعة الوصفة أو عرضها على الصيدلي مباشرة</li>
+                        <li>الوصفات محفوظة في سجلك الطبي للرجوع إليها لاحقاً</li>
+                    </ul>
+                    <p class="mt-3">
+                        <strong>ملاحظة:</strong> الأدوية تصرفها الصيدليات بناءً على القوانين المحلية
+                    </p>
+                </div>
+            </div>
+
+            <!-- FAQ Item 9 -->
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span class="faq-question-text">كيف ألغي أو أعدل موعد محجوز؟</span>
+                    <div class="faq-icon">
+                        <i class="bi bi-chevron-down"></i>
+                    </div>
+                </div>
+                <div class="faq-answer">
+                    <p>
+                        من السهل إدارة مواعيدك:
+                    </p>
+                    <ul>
+                        <li>اذهب إلى قسم "مواعيدي" في لوحة التحكم</li>
+                        <li>اختر الموعد الذي تريد تعديله أو إلغاءه</li>
+                        <li>انقر على "تعديل" لتغيير الوقت أو "إلغاء" للإلغاء</li>
+                        <li>ستتلقى تأكيداً بالتغيير عبر البريد الإلكتروني</li>
+                    </ul>
+                    <p class="mt-3">
+                        <strong>سياسة الإلغاء:</strong> يمكنك الإلغاء حتى 24 ساعة قبل الموعد بدون رسوم
+                    </p>
+                </div>
+            </div>
+
+            <!-- FAQ Item 10 -->
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span class="faq-question-text">هل يمكنني تصدير سجلي الطبي؟</span>
+                    <div class="faq-icon">
+                        <i class="bi bi-chevron-down"></i>
+                    </div>
+                </div>
+                <div class="faq-answer">
+                    <p>
+                        بالتأكيد! يمكنك تصدير سجلك الطبي بسهولة:
+                    </p>
+                    <ul>
+                        <li>اذهب إلى "السجلات الطبية" من لوحة التحكم</li>
+                        <li>انقر على زر "تصدير" أو "طباعة"</li>
+                        <li>اختر الصيغة (PDF أو Word)</li>
+                        <li>سيتم تحميل السجل الكامل على جهازك</li>
+                    </ul>
+                    <p class="mt-3">
+                        هذا مفيد عندما تريد مراجعة طبيب في عيادة أخرى أو الاحتفاظ بنسخة احتياطية
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Help Section -->
+        <div class="row mt-5">
+            <div class="col-lg-6 mx-auto" data-aos="fade-up">
+                <div class="card border-0 shadow-sm rounded-4 bg-success bg-opacity-10 p-5 text-center">
+                    <h4 class="fw-bold text-dark mb-3">لم تجد إجابة لسؤالك؟</h4>
+                    <p class="text-muted mb-4">لا تتردد في التواصل مع فريقنا مباشرة. نحن هنا لمساعدتك!</p>
+                    <a href="/Home/Contact" class="btn btn-success btn-lg rounded-pill px-5">
+                        <i class="bi bi-envelope me-2"></i>تواصل معنا الآن
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    function toggleFaq(element) {
+        const question = element;
+        const answer = question.nextElementSibling;
+        
+        // Close all other FAQs
+        const allAnswers = document.querySelectorAll('.faq-answer');
+        const allQuestions = document.querySelectorAll('.faq-question');
+        
+        allQuestions.forEach(q => {
+            if (q !== question) {
+                q.classList.remove('active');
+            }
+        });
+        
+        allAnswers.forEach(a => {
+            if (a !== answer) {
+                a.classList.remove('show');
+            }
+        });
+        
+        // Toggle current FAQ
+        question.classList.toggle('active');
+        answer.classList.toggle('show');
+    }
+</script>

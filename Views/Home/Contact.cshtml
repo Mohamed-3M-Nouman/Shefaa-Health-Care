@@ -1,0 +1,513 @@
+@{
+    ViewData["Title"] = "تواصل معنا";
+}
+
+<style>
+    .contact-section {
+        padding: 4rem 0;
+    }
+
+    .contact-form-wrapper {
+        background: white;
+        border-radius: 16px;
+        padding: 3rem;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .form-group {
+        margin-bottom: 2rem;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 0.75rem;
+        display: block;
+        font-size: 1rem;
+    }
+
+    .form-control, .form-select {
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 0.875rem 1.25rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background-color: #f8f9fa;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #28a745;
+        background-color: white;
+        box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1);
+    }
+
+    .form-control::placeholder {
+        color: #a0aec0;
+    }
+
+    textarea.form-control {
+        resize: vertical;
+        min-height: 150px;
+        font-family: inherit;
+    }
+
+    .btn-submit {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        border: none;
+        color: white;
+        padding: 1rem 3rem;
+        font-weight: 600;
+        border-radius: 12px;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(40, 167, 69, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+
+    .btn-submit:active {
+        transform: translateY(0);
+    }
+
+    .contact-info-card {
+        background: linear-gradient(135deg, rgba(40, 167, 69, 0.05) 0%, rgba(40, 167, 69, 0.02) 100%);
+        border: 2px solid rgba(40, 167, 69, 0.2);
+        border-radius: 16px;
+        padding: 2.5rem;
+        margin-bottom: 2rem;
+        transition: all 0.3s ease;
+    }
+
+    .contact-info-card:hover {
+        border-color: #28a745;
+        box-shadow: 0 8px 20px rgba(40, 167, 69, 0.15);
+        transform: translateY(-4px);
+    }
+
+    .contact-info-icon {
+        width: 70px;
+        height: 70px;
+        background: #28a745;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        margin-bottom: 1.5rem;
+        font-size: 2rem;
+    }
+
+    .contact-info-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 0.75rem;
+    }
+
+    .contact-info-text {
+        color: #718096;
+        line-height: 1.8;
+        font-size: 1.05rem;
+    }
+
+    .contact-info-text a {
+        color: #28a745;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .contact-info-text a:hover {
+        color: #20c997;
+        text-decoration: underline;
+    }
+
+    .social-links {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .social-icon {
+        width: 50px;
+        height: 50px;
+        background: rgba(40, 167, 69, 0.1);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #28a745;
+        font-size: 1.5rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .social-icon:hover {
+        background: #28a745;
+        color: white;
+        transform: translateY(-4px);
+    }
+
+    .category-badge {
+        display: inline-block;
+        background: rgba(40, 167, 69, 0.1);
+        color: #28a745;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-size: 0.9rem;
+        margin: 0.3rem;
+        cursor: pointer;
+        border: 2px solid transparent;
+        transition: all 0.3s ease;
+    }
+
+    .category-badge:hover {
+        border-color: #28a745;
+        background: white;
+    }
+
+    .success-message {
+        background: linear-gradient(135deg, rgba(40, 167, 69, 0.1) 0%, rgba(32, 201, 151, 0.1) 100%);
+        border: 2px solid #28a745;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        display: none;
+    }
+
+    .success-message.show {
+        display: block;
+        animation: slideDown 0.3s ease;
+    }
+
+    @@keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .required-field::after {
+        content: " *";
+        color: #e53e3e;
+    }
+
+    .step-indicator {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 3rem;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .step {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .step-number {
+        width: 40px;
+        height: 40px;
+        background: rgba(40, 167, 69, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        color: #28a745;
+    }
+
+    .step.active .step-number {
+        background: #28a745;
+        color: white;
+    }
+
+    .form-hint {
+        font-size: 0.9rem;
+        color: #a0aec0;
+        margin-top: 0.5rem;
+    }
+</style>
+
+<!-- ══════════════════════════════════════════ -->
+<!--  HERO SECTION                              -->
+<!-- ══════════════════════════════════════════ -->
+<section class="hero-section bg-success bg-opacity-10 position-relative overflow-hidden py-5">
+    <div class="container position-relative">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6" data-aos="fade-up">
+                <span class="badge bg-success bg-opacity-25 text-success rounded-4 px-3 py-2 mb-3 fs-6">
+                    <i class="bi bi-telephone me-1"></i>تواصل معنا
+                </span>
+                <h1 class="display-4 fw-800 text-dark mb-3 lh-base">
+                    نحن بانتظارك
+                    <br />
+                    <span class="text-success">لمساعدتك</span>
+                </h1>
+                <p class="fs-5 text-muted mb-4 lh-lg">
+                    هل واجهت مشكلة أو لديك استفسار؟ تواصل معنا مباشرة 
+                    وسنقوم بالرد عليك في أسرع وقت ممكن.
+                </p>
+                <div class="d-flex gap-3">
+                    <div class="text-center">
+                        <h4 class="text-success fw-bold mb-0">24/7</h4>
+                        <small class="text-muted">دعم مستمر</small>
+                    </div>
+                    <div class="vr"></div>
+                    <div class="text-center">
+                        <h4 class="text-success fw-bold mb-0">&lt;1h</h4>
+                        <small class="text-muted">وقت الرد</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 text-center" data-aos="fade-up" data-aos-delay="200">
+                <div class="bg-white rounded-5 shadow p-5">
+                    <div style="font-size: 120px; color: #28a745; line-height: 1;">
+                        <i class="bi bi-telephone-fill"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════ -->
+<!--  CONTACT SECTION                           -->
+<!-- ══════════════════════════════════════════ -->
+<section class="contact-section">
+    <div class="container">
+        <div class="row g-5">
+            <!-- Contact Form -->
+            <div class="col-lg-7" data-aos="fade-up">
+                <h2 class="fw-bold text-dark mb-4">
+                    <i class="bi bi-chat-dots text-success me-2"></i>أرسل لنا رسالتك
+                </h2>
+
+                <div class="success-message" id="successMessage">
+                    <div class="d-flex gap-3">
+                        <i class="bi bi-check-circle text-success" style="font-size: 1.5rem;"></i>
+                        <div>
+                            <h6 class="fw-bold text-success mb-1">شكراً لك!</h6>
+                            <p class="mb-0 text-muted">تم استقبال رسالتك بنجاح. سنقوم بمراجعتها والرد عليك قريباً.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <form class="contact-form-wrapper" id="contactForm" onsubmit="handleFormSubmit(event)">
+                    <!-- Name Field -->
+                    <div class="form-group">
+                        <label class="form-label required-field">اسمك الكامل</label>
+                        <input type="text" class="form-control" name="name" placeholder="محمد أحمد علي" required>
+                        <div class="form-hint">أدخل اسمك الكامل</div>
+                    </div>
+
+                    <!-- Email Field -->
+                    <div class="form-group">
+                        <label class="form-label required-field">البريد الإلكتروني</label>
+                        <input type="email" class="form-control" name="email" placeholder="your.email@example.com" required>
+                        <div class="form-hint">سنستخدمه للتواصل معك</div>
+                    </div>
+
+                    <!-- Phone Field -->
+                    <div class="form-group">
+                        <label class="form-label required-field">رقم الهاتف</label>
+                        <input type="tel" class="form-control" name="phone" placeholder="+20 123 456 7890" required>
+                        <div class="form-hint">رقم هاتف صحيح لتتمكن من التواصل معنا</div>
+                    </div>
+
+                    <!-- Category Field -->
+                    <div class="form-group">
+                        <label class="form-label required-field">فئة المشكلة</label>
+                        <select class="form-select" name="category" required>
+                            <option value="">اختر فئة المشكلة</option>
+                            <option value="technical">مشاكل تقنية</option>
+                            <option value="account">مشاكل الحساب</option>
+                            <option value="booking">مشاكل الحجز</option>
+                            <option value="payment">مشاكل الدفع</option>
+                            <option value="medical">استفسارات طبية</option>
+                            <option value="feedback">رأي أو اقتراح</option>
+                            <option value="other">أخرى</option>
+                        </select>
+                    </div>
+
+                    <!-- Subject Field -->
+                    <div class="form-group">
+                        <label class="form-label required-field">الموضوع</label>
+                        <input type="text" class="form-control" name="subject" placeholder="موضوع رسالتك باختصار" required>
+                        <div class="form-hint">عنوان قصير لمشكلتك</div>
+                    </div>
+
+                    <!-- Message Field -->
+                    <div class="form-group">
+                        <label class="form-label required-field">الرسالة</label>
+                        <textarea class="form-control" name="message" placeholder="اشرح مشكلتك أو سؤالك بالتفصيل..." required></textarea>
+                        <div class="form-hint">يرجى توضيح المشكلة قدر الإمكان لتسريع حل المشكلة</div>
+                    </div>
+
+                    <!-- Attachment Field -->
+                    <div class="form-group">
+                        <label class="form-label">إرفاق ملف (اختياري)</label>
+                        <div class="input-group">
+                            <input type="file" class="form-control" name="attachment" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx">
+                            <span class="input-group-text bg-success bg-opacity-10 border-2 border-success">
+                                <i class="bi bi-paperclip text-success"></i>
+                            </span>
+                        </div>
+                        <div class="form-hint">يمكنك إرفاق صورة أو وثيقة لتوضيح المشكلة (حجم الملف: حتى 5 MB)</div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn-submit">
+                        <i class="bi bi-send me-2"></i>أرسل الرسالة
+                    </button>
+                </form>
+            </div>
+
+            <!-- Contact Information -->
+            <div class="col-lg-5" data-aos="fade-up" data-aos-delay="100">
+                <h2 class="fw-bold text-dark mb-4">
+                    <i class="bi bi-info-circle text-success me-2"></i>معلومات التواصل
+                </h2>
+
+                <!-- Email Card -->
+                <div class="contact-info-card">
+                    <div class="contact-info-icon">
+                        <i class="bi bi-envelope"></i>
+                    </div>
+                    <h5 class="contact-info-title">البريد الإلكتروني</h5>
+                    <p class="contact-info-text">
+                        <a href="mailto:support@shefaa.health">support@shefaa.health</a>
+                        <br>
+                        <small class="text-muted">نرد على جميع رسائل البريد الإلكتروني خلال 24 ساعة</small>
+                    </p>
+                </div>
+
+                <!-- Phone Card -->
+                <div class="contact-info-card">
+                    <div class="contact-info-icon">
+                        <i class="bi bi-telephone"></i>
+                    </div>
+                    <h5 class="contact-info-title">الهاتف</h5>
+                    <p class="contact-info-text">
+                        <a href="tel:+201234567890">+20 123 456 7890</a>
+                        <br>
+                        <small class="text-muted">من الساعة 9 صباحاً إلى 6 مساءً (السبت - الخميس)</small>
+                    </p>
+                </div>
+
+                <!-- Live Chat Card -->
+                <div class="contact-info-card">
+                    <div class="contact-info-icon">
+                        <i class="bi bi-chat-left-dots"></i>
+                    </div>
+                    <h5 class="contact-info-title">الدردشة الحية</h5>
+                    <p class="contact-info-text">
+                        متاح على مدار الساعة للإجابة على أسئلتك الفورية.
+                        <br>
+                        <small class="text-muted">اضغط على أيقونة الدردشة في الزاوية السفلية</small>
+                    </p>
+                </div>
+
+                <!-- Office Location Card -->
+                <div class="contact-info-card">
+                    <div class="contact-info-icon">
+                        <i class="bi bi-geo-alt"></i>
+                    </div>
+                    <h5 class="contact-info-title">عنواننا</h5>
+                    <p class="contact-info-text">
+                        شارع النيل، القاهرة
+                        <br>
+                        جمهورية مصر العربية
+                        <br>
+                        <small class="text-muted">12345</small>
+                    </p>
+                </div>
+
+                <!-- Social Media Section -->
+                <div class="mt-4">
+                    <h5 class="fw-bold text-dark mb-3">
+                        <i class="bi bi-share text-success me-2"></i>تابعنا على الشبكات الاجتماعية
+                    </h5>
+                    <div class="social-links">
+                        <a href="#" class="social-icon" title="فيسبوك">
+                            <i class="bi bi-facebook"></i>
+                        </a>
+                        <a href="#" class="social-icon" title="تويتر">
+                            <i class="bi bi-twitter"></i>
+                        </a>
+                        <a href="#" class="social-icon" title="إنستجرام">
+                            <i class="bi bi-instagram"></i>
+                        </a>
+                        <a href="#" class="social-icon" title="لينكد إن">
+                            <i class="bi bi-linkedin"></i>
+                        </a>
+                        <a href="#" class="social-icon" title="واتس آب">
+                            <i class="bi bi-whatsapp"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Quick Help Section -->
+                <div class="card border-0 bg-light rounded-4 p-3 mt-4">
+                    <h6 class="fw-bold text-dark mb-2">
+                        <i class="bi bi-lightbulb text-success me-1"></i>نصيحة سريعة
+                    </h6>
+                    <p class="small text-muted mb-0">
+                        قبل التواصل معنا، تحقق من <a href="@Url.Action("PopularQuestions")" class="text-success fw-bold">الأسئلة الشائعة</a> 
+                        قد تجد إجابة سؤالك هناك!
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════ -->
+<!--  FAQ LINK SECTION                          -->
+<!-- ══════════════════════════════════════════ -->
+<section class="py-5 bg-success bg-opacity-10">
+    <div class="container text-center" data-aos="fade-up">
+        <h3 class="fw-bold text-dark mb-3">
+            <i class="bi bi-question-circle text-success me-2"></i>هل تريد إجابة سريعة؟
+        </h3>
+        <p class="text-muted mb-4">تصفح قائمتنا الشاملة من الأسئلة الشائعة والإجابات</p>
+        <a href="@Url.Action("PopularQuestions")" class="btn btn-success btn-lg rounded-pill px-5">
+            <i class="bi bi-arrow-right me-2"></i>الأسئلة الشائعة
+        </a>
+    </div>
+</section>
+
+<script>
+    function handleFormSubmit(event) {
+        event.preventDefault();
+        
+        // Get form data
+        const formData = new FormData(event.target);
+        
+        // Show success message
+        const successMessage = document.getElementById('successMessage');
+        successMessage.classList.add('show');
+        
+        // Reset form
+        event.target.reset();
+        
+        // Hide success message after 5 seconds
+        setTimeout(() => {
+            successMessage.classList.remove('show');
+        }, 5000);
+        
+        // Scroll to top
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+</script>
